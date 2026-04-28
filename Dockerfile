@@ -12,15 +12,21 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
+    nodejs \
+    npm \
     && docker-php-ext-install pdo pdo_pgsql pgsql zip mbstring exif pcntl bcmath gd \
     && curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer
 
 COPY composer.json composer.lock ./
-
 RUN composer install --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs
 
+COPY package.json package-lock.json ./
+RUN npm install
+
 COPY . .
+
+RUN npm run build
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
