@@ -74,7 +74,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Estagiários — director
-    Route::middleware(['role:director'])->group(function () {
+    Route::middleware(['role:director|assistente_local'])->group(function () {
         Route::get('/estagiarios', [EstagiarioController::class, 'index']);
         Route::get('/estagiarios/create', [EstagiarioController::class, 'create']);
         Route::post('/estagiarios', [EstagiarioController::class, 'store']);
@@ -96,7 +96,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Efetividade — director, recepcionista
-    Route::middleware(['role:director|recepcionista'])->group(function () {
+    Route::middleware(['role:director|recepcionista|motorista'])->group(function () {
         Route::get('/efetividade', [EfetividadeController::class, 'index']);
         Route::post('/efetividade/salvar', [EfetividadeController::class, 'store']);
         Route::post('/efetividade/pdf', [EfetividadeController::class, 'pdf']);
