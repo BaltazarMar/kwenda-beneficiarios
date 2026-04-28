@@ -11,13 +11,14 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring
+    libzip-dev \
+    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring zip bcmath
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . .
 
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-sodium
 
 EXPOSE 8000
 
