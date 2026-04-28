@@ -3,18 +3,10 @@ FROM php:8.2-apache
 WORKDIR /var/www/html
 
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    zip \
-    unzip \
-    libpq-dev \
-    libzip-dev \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    nodejs \
-    npm \
-    && docker-php-ext-install pdo pdo_pgsql pgsql zip mbstring exif pcntl bcmath gd \
+    git curl zip unzip \
+    libpng-dev libonig-dev libxml2-dev \
+    libzip-dev nodejs npm \
+    && docker-php-ext-install pdo pdo_mysql mysqli zip mbstring exif pcntl bcmath gd \
     && curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer
 

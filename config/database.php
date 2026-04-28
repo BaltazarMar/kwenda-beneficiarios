@@ -60,6 +60,19 @@ return [
     'engine'         => null,
 ],
 
+'mysql_clever' => [
+    'driver'    => 'mysql',
+    'host'      => env('DB_CLEVERCLOUD_HOST'),
+    'port'      => env('DB_CLEVERCLOUD_PORT', '3306'),
+    'database'  => env('DB_CLEVERCLOUD_DATABASE'),
+    'username'  => env('DB_CLEVERCLOUD_USERNAME'),
+    'password'  => env('DB_CLEVERCLOUD_PASSWORD'),
+    'charset'   => 'utf8mb4',
+    'collation' => 'utf8mb4_unicode_ci',
+    'prefix'    => '',
+    'strict'    => true,
+    'engine'    => null,
+],
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

@@ -8,18 +8,24 @@ use Illuminate\Support\Facades\DB;
 class TransferirDados extends Command
 {
     protected $signature   = 'transferir:dados';
-    protected $description = 'Transfere dados do MySQL para PostgreSQL';
+    protected $description = 'Transfere dados do MySQL local para Clever Cloud';
 
     public function handle()
     {
+        $this->info('A criar tabelas no Clever Cloud...');
+
+        // Migra as tabelas
+        \Artisan::call('migrate', [
+            '--database' => 'mysql_clever',
+            '--force'    => true,
+        ]);
+
         $this->info('A transferir beneficiários...');
 
         $total = DB::connection('mysql')->table('beneficiarios')->count();
         $bar   = $this->output->createProgressBar($total);
 
         DB::connection('mysql')->table('beneficiarios')->orderBy('id')->chunk(500, function($beneficiarios) use ($bar) {
-
-            // Remove duplicados de social_id dentro do lote — mantém o último
             $lote = collect($beneficiarios)
                 ->groupBy('social_id')
                 ->map(fn($grupo) => $grupo->last())
@@ -27,8 +33,7 @@ class TransferirDados extends Command
                 ->map(fn($b) => (array) $b)
                 ->toArray();
 
-            // Insere o lote
-            DB::connection('pgsql')->table('beneficiarios')->upsert(
+            DB::connection('mysql_clever')->table('beneficiarios')->upsert(
                 $lote,
                 ['social_id'],
                 array_keys($lote[0])
@@ -38,6 +43,6 @@ class TransferirDados extends Command
         });
 
         $bar->finish();
-        $this->info("\nTransferência concluída! {$total} registos processados.");
+        $this->info("\nTransferência concluída!");
     }
 }
