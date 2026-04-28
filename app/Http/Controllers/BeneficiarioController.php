@@ -178,7 +178,7 @@ class BeneficiarioController extends Controller
         if ($ano) {
             $queryMunicipio->where(function($q) use ($ano) {
                 for ($i = 1; $i <= 6; $i++) {
-                    $q->orWhereRaw('EXTRACT(YEAR FROM data' . $i . ') = ?', [$ano]);
+                    $q->orWhereYear('data' . $i, $ano);
                 }
             });
         }
@@ -218,7 +218,7 @@ class BeneficiarioController extends Controller
             $q = clone $query;
             $q->where('rec' . $i, '>', 0);
             if ($ano) {
-                $q->whereRaw('EXTRACT(YEAR FROM data' . $i . ') = ?', [$ano]);
+                $q->whereYear('data' . $i, $ano);
             }
             $recorrencias['Rec ' . $i] = $q->count();
         }
@@ -226,8 +226,9 @@ class BeneficiarioController extends Controller
         // Anos disponíveis
         $anos = [];
         for ($i = 1; $i <= 6; $i++) {
-            $anosDaRec = Beneficiario::selectRaw('EXTRACT(YEAR FROM data' . $i . ')::integer as ano')
+            $anosDaRec = Beneficiario::selectRaw('YEAR(data' . $i . ') as ano')
                 ->whereNotNull('data' . $i)
+                ->whereRaw('YEAR(data' . $i . ') BETWEEN 2000 AND 2030')
                 ->groupBy('ano')
                 ->orderBy('ano')
                 ->pluck('ano')
