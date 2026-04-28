@@ -116,17 +116,12 @@
 <body>
 
 <div class="login-card">
-
-    {{-- LOGO --}}
-    <div class="login-logo">
-        <div class="logo-icon">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
-            </svg>
-        </div>
-        <h1>Sistema FAS</h1>
-        <p>Lunda Sul — Controlo de Beneficiários</p>
-    </div>
+{{-- LOGO --}}
+<div class="login-logo">
+    <img src="{{ asset('images/fas.jpg') }}" alt="FAS" style="width: 100px; height: 100px; object-fit: contain; border-radius: 12px; margin-bottom: 16px;">
+    <h1>Sistema FAS</h1>
+    <p>Lunda Sul — Controlo de Beneficiários</p>
+</div>
 
     {{-- ERROS --}}
     @if ($errors->any())

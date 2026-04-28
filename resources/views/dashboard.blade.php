@@ -47,11 +47,10 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        /* 🔥 IMAGEM COMPLETA NO CARROSSEL */
         .carousel-img {
             width: 100%;
             height: 500px;
-            object-fit: contain; /* NÃO CORTA */
+            object-fit: contain;
             background: #e9ecef;
             border-radius: 10px;
         }
@@ -63,7 +62,7 @@
 <div class="sidebar">
     <h4>Controlo</h4>
 
-    <a href="#">Início</a>
+    <a href="{{ url('/painel') }}">🏠 Início</a>
 
     <hr>
 
@@ -83,11 +82,20 @@
 
 <!-- CONTEÚDO -->
 <div class="content">
-    <h3>Painel de Controlo</h3>
-    <p>Visão geral do sistema</p>
+
+    {{-- TOPO COM BOTÃO SAIR --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-0">Painel de Controlo</h3>
+            <p class="text-muted mb-0">Visão geral do sistema</p>
+        </div>
+        <a href="{{ url('/sair') }}" class="btn btn-outline-danger btn-sm">
+            🚪 Sair
+        </a>
+    </div>
 
     <!-- CARDS -->
-    <div class="row mt-4">
+    <div class="row mt-2">
 
         <div class="col-md-3">
             <div class="card-box">
@@ -119,7 +127,7 @@
 
     </div>
 
-    <!-- 🔥 CARROSSEL PROFISSIONAL -->
+    <!-- CARROSSEL -->
     <div class="mt-5">
         <h5 class="mb-3">Galeria da Instituição</h5>
 
@@ -177,12 +185,10 @@
 
             </div>
 
-            <!-- Botão anterior -->
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon"></span>
             </button>
 
-            <!-- Botão próximo -->
             <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
                 <span class="carousel-control-next-icon"></span>
             </button>
@@ -192,7 +198,7 @@
 
 </div>
 
-<!-- Bootstrap JS (OBRIGATÓRIO) -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
