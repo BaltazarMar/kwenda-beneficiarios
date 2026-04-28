@@ -26,9 +26,6 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
     && a2enmod rewrite
 
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-
 EXPOSE 80
 
-CMD ["/start.sh"]
+CMD bash -c "php artisan migrate --force && php artisan criar:utilizadores --no-interaction; apache2-foreground"

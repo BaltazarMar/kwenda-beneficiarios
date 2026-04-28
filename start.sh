@@ -1,4 +1,0 @@
-﻿#!/bin/bash
-php artisan migrate --force
-php artisan criar:utilizadores --no-interaction
-apache2-foreground
