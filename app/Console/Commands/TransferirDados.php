@@ -14,7 +14,7 @@ class TransferirDados extends Command
     {
         $this->info('A criar tabelas no Clever Cloud...');
 
-        // Migra as tabelas
+        // Migra as tabelas no Clever Cloud
         \Artisan::call('migrate', [
             '--database' => 'mysql_clever',
             '--force'    => true,
@@ -22,10 +22,10 @@ class TransferirDados extends Command
 
         $this->info('A transferir beneficiários...');
 
-        $total = DB::connection('mysql')->table('beneficiarios')->count();
+        $total = DB::connection('mysql_local')->table('beneficiarios')->count();
         $bar   = $this->output->createProgressBar($total);
 
-        DB::connection('mysql')->table('beneficiarios')->orderBy('id')->chunk(500, function($beneficiarios) use ($bar) {
+        DB::connection('mysql_local')->table('beneficiarios')->orderBy('id')->chunk(500, function($beneficiarios) use ($bar) {
             $lote = collect($beneficiarios)
                 ->groupBy('social_id')
                 ->map(fn($grupo) => $grupo->last())
