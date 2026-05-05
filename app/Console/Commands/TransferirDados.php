@@ -11,38 +11,30 @@ class TransferirDados extends Command
     protected $description = 'Transfere dados do MySQL local para Clever Cloud';
 
     public function handle()
-    {
-        $this->info('A criar tabelas no Clever Cloud...');
+{
+    $this->info('A transferir beneficiários...');
 
-        // Migra as tabelas no Clever Cloud
-        \Artisan::call('migrate', [
-            '--database' => 'mysql_clever',
-            '--force'    => true,
-        ]);
+    $total = DB::connection('mysql_local')->table('beneficiarios')->count();
+    $bar   = $this->output->createProgressBar($total);
 
-        $this->info('A transferir beneficiários...');
+    DB::connection('mysql_local')->table('beneficiarios')->orderBy('id')->chunk(500, function($beneficiarios) use ($bar) {
+        $lote = collect($beneficiarios)
+            ->groupBy('social_id')
+            ->map(fn($grupo) => $grupo->last())
+            ->values()
+            ->map(fn($b) => (array) $b)
+            ->toArray();
 
-        $total = DB::connection('mysql_local')->table('beneficiarios')->count();
-        $bar   = $this->output->createProgressBar($total);
+        DB::connection('mysql_clever')->table('beneficiarios')->upsert(
+            $lote,
+            ['social_id'],
+            array_keys($lote[0])
+        );
 
-        DB::connection('mysql_local')->table('beneficiarios')->orderBy('id')->chunk(500, function($beneficiarios) use ($bar) {
-            $lote = collect($beneficiarios)
-                ->groupBy('social_id')
-                ->map(fn($grupo) => $grupo->last())
-                ->values()
-                ->map(fn($b) => (array) $b)
-                ->toArray();
+        $bar->advance(count($lote));
+    });
 
-            DB::connection('mysql_clever')->table('beneficiarios')->upsert(
-                $lote,
-                ['social_id'],
-                array_keys($lote[0])
-            );
-
-            $bar->advance(count($lote));
-        });
-
-        $bar->finish();
-        $this->info("\nTransferência concluída!");
-    }
+    $bar->finish();
+    $this->info("\nTransferência concluída!");
+}
 }

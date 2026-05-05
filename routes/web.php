@@ -7,6 +7,7 @@ use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\FuncaoController;
 use App\Http\Controllers\EfetividadeController;
 use App\Http\Controllers\BeneficiarioController;
+use App\Http\Controllers\KoboSyncController;
 
 // ================= PÁGINA INICIAL =================
 Route::get('/', function () {
@@ -103,6 +104,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/efetividades/csv', [EfetividadeController::class, 'csv']);
     });
 
+});
+
+
+
+Route::prefix('kobo')->name('kobo.')->middleware(['auth'])->group(function () {
+    Route::get('/sync',      [KoboSyncController::class, 'index'])             ->name('sync');
+    Route::post('/importar', [KoboSyncController::class, 'importar'])          ->name('importar');
+    Route::get('/json',      [KoboSyncController::class, 'json'])              ->name('json');
+    Route::post('/eliminar', [KoboSyncController::class, 'eliminarDuplicados'])->name('eliminar');
+    Route::get('/exportar', [KoboSyncController::class, 'exportarExcel'])->name('exportar');
+    Route::post('/eliminar-individual', [KoboSyncController::class, 'eliminarIndividual'])->name('eliminar.individual');
 });
 
 require __DIR__.'/auth.php';
