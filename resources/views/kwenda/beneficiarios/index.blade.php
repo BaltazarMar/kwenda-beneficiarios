@@ -1,21 +1,19 @@
 @extends('layouts.app')
 
+@section('titulo', 'Beneficiários')
+
 @section('content')
-<div class="container-fluid">
 
-    {{-- FILTROS --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ url('/beneficiarios') }}">
-                <div class="row g-2">
-
-     <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4>Beneficiários</h4>
+{{-- TOPO --}}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-0 fw-bold">Lista de Beneficiários</h4>
+        <p class="text-muted mb-0" style="font-size:13px;">
+            Total filtrado: <strong>{{ $beneficiarios->total() }}</strong> registos
+        </p>
+    </div>
     <div class="d-flex gap-2 align-items-center">
-        <span class="badge bg-primary fs-6">Total: {{ $beneficiarios->total() }}</span>
-
-        {{-- Registos por página --}}
-        <form method="GET" action="{{ url('/beneficiarios') }}" id="form-perpage">
+        <form method="GET" action="{{ url('/beneficiarios') }}" id="form-perpage" class="d-flex align-items-center gap-2">
             @foreach(request()->except('per_page') as $key => $value)
                 <input type="hidden" name="{{ $key }}" value="{{ $value }}">
             @endforeach
@@ -25,144 +23,139 @@
                 <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
             </select>
         </form>
-
-        <a href="{{ url('/beneficiarios/exportar') }}?{{ http_build_query(request()->all()) }}"
-           class="btn btn-success btn-sm">
-            📥 Exportar Excel
+        <a href="{{ url('/beneficiarios/exportar') }}?{{ http_build_query(request()->all()) }}" class="btn btn-sm btn-success">
+            <i class="bi bi-download"></i> Exportar Excel
         </a>
     </div>
 </div>
 
-                    <div class="col-12 col-md-3">
-                        <input
-                            type="text"
-                            name="nome"
-                            class="form-control"
-                            placeholder="Pesquisar por nome..."
-                            value="{{ request('nome') }}"
-                        >
-                    </div>
-
-                    <div class="col-6 col-md-2">
-                        <input
-                            type="text"
-                            name="social_id"
-                            class="form-control"
-                            placeholder="Social ID"
-                            value="{{ request('social_id') }}"
-                        >
-                    </div>
-
-                    <div class="col-6 col-md-2">
-                        <select name="municipio" id="select-municipio" class="form-select">
-                            <option value="">Todos os municípios</option>
-                            @foreach($municipios as $municipio)
-                                <option value="{{ $municipio }}" {{ request('municipio') == $municipio ? 'selected' : '' }}>
-                                    {{ $municipio }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-6 col-md-2">
-                        <select name="bairro" id="select-bairro" class="form-select">
-                            <option value="">Todos os bairros</option>
-                            @foreach($bairros as $bairro)
-                                <option value="{{ $bairro }}" {{ request('bairro') == $bairro ? 'selected' : '' }}>
-                                    {{ $bairro }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-6 col-md-1">
-                        <select name="pago" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="1" {{ request('pago') === '1' ? 'selected' : '' }}>Pago</option>
-                            <option value="0" {{ request('pago') === '0' ? 'selected' : '' }}>Não Pago</option>
-                            <option value="2" {{ request('pago') === '2' ? 'selected' : '' }}>Nunca Pago</option>
-                        </select>
-                    </div>
-
-
-                    <div class="col-12 col-md-1 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-                        <a href="{{ url('/beneficiarios') }}" class="btn btn-outline-secondary w-100">Limpar</a>
-                    </div>
-
+{{-- FILTROS --}}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url('/beneficiarios') }}">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Nome</label>
+                    <input type="text" name="nome" class="form-control form-control-sm" placeholder="Pesquisar por nome..." value="{{ request('nome') }}">
                 </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- TABELA --}}
-    <div class="card">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Social ID</th>
-                            <th>Nome</th>
-                            <th>Sexo</th>
-                            <th>Município</th>
-                            <th>Contacto</th>
-                            <th>Pago</th>
-                            <th>Total Recebido</th>
-                            <th>Acções</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($beneficiarios as $b)
-                        <tr>
-                            <td>{{ $b->social_id }}</td>
-                            <td>{{ $b->nome }}</td>
-                            <td>
-                                @if($b->sexo == 'M')
-                                    <span class="badge bg-info">M</span>
-                                @elseif($b->sexo == 'F')
-                                    <span class="badge" style="background-color:#e91e8c;">F</span>
-                                @else
-                                    <span class="text-muted">—</span>
-                                @endif
-                            </td>
-                            <td>{{ $b->municipio }}</td>
-                            <td>{{ $b->contacto ?? '—' }}</td>
-                            <td>
-                                @if($b->pago == 1)
-                                    <span class="badge bg-success">Pago</span>
-                                @elseif($b->pago == 0)
-                                    <span class="badge bg-danger">Não Pago</span>
-                                @else
-                                    <span class="badge bg-warning text-dark">Nunca</span>
-                                @endif
-                            </td>
-                            <td>
-                                {{ number_format($b->rec1 + $b->rec2 + $b->rec3 + $b->rec4 + $b->rec5 + $b->rec6, 0, ',', '.') }} Kz
-                            </td>
-                            <td>
-                                <a href="{{ url('/beneficiarios/' . $b->id) }}" class="btn btn-sm btn-outline-primary">Ver</a>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="8" class="text-center text-muted py-4">
-                                Nenhum beneficiário encontrado.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Social ID</label>
+                    <input type="text" name="social_id" class="form-control form-control-sm" placeholder="Social ID" value="{{ request('social_id') }}">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Município</label>
+                    <select name="municipio" id="select-municipio" class="form-select form-select-sm">
+                        <option value="">Todos os municípios</option>
+                        @foreach($municipios as $municipio)
+                            <option value="{{ $municipio }}" {{ request('municipio') == $municipio ? 'selected' : '' }}>
+                                {{ $municipio }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Bairro</label>
+                    <select name="bairro" id="select-bairro" class="form-select form-select-sm">
+                        <option value="">Todos os bairros</option>
+                        @foreach($bairros as $bairro)
+                            <option value="{{ $bairro }}" {{ request('bairro') == $bairro ? 'selected' : '' }}>
+                                {{ $bairro }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-6 col-md-1">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Estado</label>
+                    <select name="pago" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                        <option value="1" {{ request('pago') === '1' ? 'selected' : '' }}>Pago</option>
+                        <option value="0" {{ request('pago') === '0' ? 'selected' : '' }}>Não Pago</option>
+                        <option value="2" {{ request('pago') === '2' ? 'selected' : '' }}>Nunca Pago</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                    <a href="{{ url('/beneficiarios') }}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="bi bi-x-lg"></i> Limpar
+                    </a>
+                </div>
             </div>
+        </form>
+    </div>
+</div>
+
+{{-- TABELA --}}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead style="background:#f8fafc;">
+                    <tr>
+                        <th class="ps-4 py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Social ID</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Nome</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Sexo</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Município</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Contacto</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Estado</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Total Recebido</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Acções</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($beneficiarios as $b)
+                    <tr>
+                        <td class="ps-4 py-3 text-muted" style="font-size:13px;">{{ $b->social_id }}</td>
+                        <td class="py-3 fw-semibold">{{ $b->nome }}</td>
+                        <td class="py-3">
+                            @if($b->sexo == 'M')
+                                <span class="badge" style="background:#eff6ff; color:#3b82f6;">M</span>
+                            @elseif($b->sexo == 'F')
+                                <span class="badge" style="background:#fdf2f8; color:#ec4899;">F</span>
+                            @else
+                                <span class="text-muted">—</span>
+                            @endif
+                        </td>
+                        <td class="py-3 text-muted">{{ $b->municipio }}</td>
+                        <td class="py-3 text-muted">{{ $b->contacto ?? '—' }}</td>
+                        <td class="py-3">
+                            @if($b->pago == 1)
+                                <span class="badge" style="background:#f0fdf4; color:#16a34a; font-weight:600;">Pago</span>
+                            @elseif($b->pago == 0)
+                                <span class="badge" style="background:#fff1f2; color:#dc2626; font-weight:600;">Não Pago</span>
+                            @else
+                                <span class="badge" style="background:#fffbeb; color:#d97706; font-weight:600;">Nunca</span>
+                            @endif
+                        </td>
+                        <td class="py-3 fw-semibold" style="color:#0f172a;">
+                            {{ number_format($b->rec1 + $b->rec2 + $b->rec3 + $b->rec4 + $b->rec5 + $b->rec6, 0, ',', '.') }} Kz
+                        </td>
+                        <td class="py-3">
+                            <a href="{{ url('/beneficiarios/' . $b->id) }}" class="btn btn-sm" style="background:#eff6ff; color:#3b82f6; border:none; font-weight:600; font-size:12px;">
+                                <i class="bi bi-eye-fill"></i> Ver
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox" style="font-size:32px; display:block; margin-bottom:8px;"></i>
+                            Nenhum beneficiário encontrado.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
-
-    {{-- PAGINAÇÃO --}}
-    <div class="d-flex justify-content-center mt-4">
-        {{ $beneficiarios->links() }}
-    </div>
-
 </div>
+
+{{-- PAGINAÇÃO --}}
+<div class="d-flex justify-content-center mt-4">
+    {{ $beneficiarios->links() }}
+</div>
+
 @endsection
 
 @push('scripts')
@@ -173,7 +166,6 @@
 
     selectMunicipio.addEventListener('change', function() {
         const municipio = this.value;
-
         selectBairro.innerHTML = '<option value="">A carregar...</option>';
         selectBairro.disabled = true;
 
@@ -182,8 +174,8 @@
             .then(bairros => {
                 selectBairro.innerHTML = '<option value="">Todos os bairros</option>';
                 bairros.forEach(bairro => {
-                    const opt       = document.createElement('option');
-                    opt.value       = bairro;
+                    const opt = document.createElement('option');
+                    opt.value = bairro;
                     opt.textContent = bairro;
                     if (bairro === bairroActivo) opt.selected = true;
                     selectBairro.appendChild(opt);

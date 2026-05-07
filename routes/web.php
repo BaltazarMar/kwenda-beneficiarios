@@ -115,6 +115,7 @@ Route::prefix('kobo')->name('kobo.')->middleware(['auth'])->group(function () {
     Route::post('/eliminar', [KoboSyncController::class, 'eliminarDuplicados'])->name('eliminar');
     Route::get('/exportar', [KoboSyncController::class, 'exportarExcel'])->name('exportar');
     Route::post('/eliminar-individual', [KoboSyncController::class, 'eliminarIndividual'])->name('eliminar.individual');
+    Route::post('/limpar-todos', [KoboSyncController::class, 'limparTodos'])->name('limpar.todos');
 });
 
 require __DIR__.'/auth.php';

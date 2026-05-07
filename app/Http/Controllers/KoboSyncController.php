@@ -278,4 +278,43 @@ class KoboSyncController extends Controller
         return redirect()->route('kobo.sync')->with('error', '❌ Erro: ' . $e->getMessage());
     }
 }
+
+/**
+ * Elimina TODOS os registos do KoBoToolbox
+ */
+public function limparTodos()
+{
+    $submissions = $this->kobo->getFormattedSubmissions();
+    $eliminados  = 0;
+    $erros       = 0;
+
+    $baseUrl  = config('kobotoolbox.base_url');
+    $token    = config('kobotoolbox.api_token');
+    $assetUid = config('kobotoolbox.asset_uid');
+
+    foreach ($submissions as $sub) {
+        if (!empty($sub['kobo_id'])) {
+            try {
+                $response = Http::timeout(30)->withHeaders([
+                    'Authorization' => "Token {$token}",
+                ])->delete("{$baseUrl}/api/v2/assets/{$assetUid}/data/{$sub['kobo_id']}/");
+
+                if ($response->successful() || $response->status() === 204) {
+                    $eliminados++;
+                } else {
+                    $erros++;
+                }
+            } catch (\Exception $e) {
+                $erros++;
+            }
+        }
+    }
+
+    $mensagem = "🗑️ {$eliminados} registos eliminados do KoBoToolbox.";
+    if ($erros > 0) {
+        $mensagem .= " ⚠️ {$erros} não foi possível eliminar.";
+    }
+
+    return redirect()->route('kobo.sync')->with('success', $mensagem);
+}
 }

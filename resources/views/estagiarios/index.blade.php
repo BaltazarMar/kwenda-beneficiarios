@@ -1,71 +1,83 @@
 @extends('layouts.app')
 
+@section('titulo', 'Estagiários')
+
 @section('content')
-<a href="/estagiarios/pdf" class="btn btn-danger mb-3">
-    📄 Exportar PDF
-</a>
-<a href="{{ route('estagiarios.excel') }}" class="btn btn-success">
-    📊 Exportar Excel
-</a>
-<div class="d-flex justify-content-between mb-3">
-    <h2>Estagiários</h2>
 
-    <a href="/estagiarios/create" class="btn btn-primary">
-        + Adicionar
-    </a>
-
-    
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-0 fw-bold">Estagiários</h4>
+        <p class="text-muted mb-0" style="font-size:13px;">Gestão de estagiários</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/estagiarios/pdf" class="btn btn-sm btn-danger">
+            <i class="bi bi-file-earmark-pdf-fill"></i> Exportar PDF
+        </a>
+        <a href="/estagiarios/create" class="btn btn-sm btn-primary">
+            <i class="bi bi-plus-lg"></i> Adicionar
+        </a>
+    </div>
 </div>
 
 @if(session('success'))
-    <div class="alert alert-success">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 @endif
 
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Sexo</th>
-            <th>BI</th>
-            <th>Data Nascimento</th>
-            <th>Estado</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach($estagiarios as $estagiario)
-        <tr>
-            <td>{{ $estagiario->id_estagiario }}</td>
-            <td>{{ $estagiario->nome }}</td>
-            <td>{{ $estagiario->sexo }}</td>
-            <td>{{ $estagiario->bi }}</td>
-            <td>{{ $estagiario->data_nascimento }}</td>
-            <td>
-                <span class="badge bg-{{ $estagiario->estado == 'activo' ? 'success' : 'secondary' }}">
-                    {{ $estagiario->estado }}
-                </span>
-            </td>
-            <td>
-                <a href="/estagiarios/{{ $estagiario->id_estagiario }}/edit" class="btn btn-warning btn-sm">
-                    Editar
-                </a>
-
-                <form action="/estagiarios/{{ $estagiario->id_estagiario }}" method="POST" class="d-inline">
-                    @csrf
-                    @method('DELETE')
-
-                    <button class="btn btn-danger btn-sm" onclick="return confirm('Eliminar?')">
-                        Eliminar
-                    </button>
-                </form>
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead style="background:#f8fafc;">
+                <tr>
+                    <th class="ps-4 py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">ID</th>
+                    <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Nome</th>
+                    <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Sexo</th>
+                    <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">BI</th>
+                    <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Data Nascimento</th>
+                    <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Estado</th>
+                    <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Acções</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($estagiarios as $estagiario)
+                <tr>
+                    <td class="ps-4 py-3 text-muted" style="font-size:13px;">{{ $estagiario->id_estagiario }}</td>
+                    <td class="py-3 fw-semibold">{{ $estagiario->nome }}</td>
+                    <td class="py-3">
+                        @if($estagiario->sexo == 'M')
+                            <span class="badge" style="background:#eff6ff; color:#3b82f6;">M</span>
+                        @else
+                            <span class="badge" style="background:#fdf2f8; color:#ec4899;">F</span>
+                        @endif
+                    </td>
+                    <td class="py-3 text-muted">{{ $estagiario->bi }}</td>
+                    <td class="py-3 text-muted">{{ $estagiario->data_nascimento }}</td>
+                    <td class="py-3">
+                        @if($estagiario->estado == 'activo')
+                            <span class="badge" style="background:#f0fdf4; color:#16a34a; font-weight:600;">Activo</span>
+                        @else
+                            <span class="badge" style="background:#f8fafc; color:#64748b; font-weight:600;">{{ $estagiario->estado }}</span>
+                        @endif
+                    </td>
+                    <td class="py-3">
+                        <a href="/estagiarios/{{ $estagiario->id_estagiario }}/edit" class="btn btn-sm" style="background:#fffbeb; color:#d97706; border:none; font-weight:600; font-size:12px;">
+                            <i class="bi bi-pencil-fill"></i> Editar
+                        </a>
+                        <form action="/estagiarios/{{ $estagiario->id_estagiario }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn btn-sm" style="background:#fff1f2; color:#dc2626; border:none; font-weight:600; font-size:12px;" onclick="return confirm('Eliminar?')">
+                                <i class="bi bi-trash-fill"></i> Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
 
 @endsection

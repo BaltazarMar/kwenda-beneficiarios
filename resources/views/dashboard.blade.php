@@ -387,9 +387,10 @@
 
         .carousel-img {
             width: 100%;
-            height: 420px;
-            object-fit: cover;
-        }
+            height: 500px;
+            object-fit: contain;
+            background: #f8fafc;
+}
 
         .carousel-indicators [data-bs-target] {
             width: 6px;
@@ -421,6 +422,7 @@
             <a href="{{ url('/painel') }}" class="nav-link active">
                 <i class="bi bi-house-door-fill"></i> Início
             </a>
+            
         </div>
 
         <div class="nav-section">
@@ -443,6 +445,11 @@
             <a href="{{ url('/kwenda-dashboard') }}" class="nav-link">
                 <i class="bi bi-bar-chart-fill"></i> Dashboard Kwenda
             </a>
+
+            <a href="{{ url('/kobo/sync') }}" class="nav-link">
+                <i class="bi bi-bar-chart-fill"></i> KoboToolboxs
+            </a>
+            
         </div>
 
         <div class="nav-section">
