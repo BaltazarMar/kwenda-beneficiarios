@@ -34,8 +34,10 @@
                     <tr>
                         <th class="ps-4 py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Nome</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Sexo</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">BI</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Telefone</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Curso</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Data Nasc.</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Data Início</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Data Término</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Estado</th>
@@ -53,8 +55,10 @@
                                 <span class="badge" style="background:#fdf2f8; color:#ec4899;">F</span>
                             @endif
                         </td>
+                        <td class="py-3 text-muted">{{ $estagiario->bi ?? '—' }}</td>
                         <td class="py-3 text-muted">{{ $estagiario->telefone ?? '—' }}</td>
                         <td class="py-3 text-muted">{{ $estagiario->curso ?? '—' }}</td>
+                        <td class="py-3 text-muted">{{ $estagiario->data_nascimento ? \Carbon\Carbon::parse($estagiario->data_nascimento)->format('d/m/Y') : '—' }}</td>
                         <td class="py-3 text-muted">{{ $estagiario->data_inicio ? \Carbon\Carbon::parse($estagiario->data_inicio)->format('d/m/Y') : '—' }}</td>
                         <td class="py-3 text-muted">{{ $estagiario->data_termino ? \Carbon\Carbon::parse($estagiario->data_termino)->format('d/m/Y') : '—' }}</td>
                         <td class="py-3">
