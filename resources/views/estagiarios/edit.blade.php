@@ -27,22 +27,45 @@
                         <input type="text" name="nome" class="form-control" value="{{ $estagiario->nome }}">
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" style="font-size:13px;">Sexo</label>
-                        <select name="sexo" class="form-select">
-                            <option value="M" {{ $estagiario->sexo == 'M' ? 'selected' : '' }}>Masculino</option>
-                            <option value="F" {{ $estagiario->sexo == 'F' ? 'selected' : '' }}>Feminino</option>
-                        </select>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">Sexo</label>
+                            <select name="sexo" class="form-select">
+                                <option value="M" {{ $estagiario->sexo == 'M' ? 'selected' : '' }}>Masculino</option>
+                                <option value="F" {{ $estagiario->sexo == 'F' ? 'selected' : '' }}>Feminino</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">BI</label>
+                            <input type="text" name="bi" class="form-control" value="{{ $estagiario->bi }}">
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">Telefone</label>
+                            <input type="text" name="telefone" class="form-control" value="{{ $estagiario->telefone }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">Data de Nascimento</label>
+                            <input type="date" name="data_nascimento" class="form-control" value="{{ $estagiario->data_nascimento }}">
+                        </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold" style="font-size:13px;">BI</label>
-                        <input type="text" name="bi" class="form-control" value="{{ $estagiario->bi }}">
+                        <label class="form-label fw-semibold" style="font-size:13px;">Curso / Licenciatura</label>
+                        <input type="text" name="curso" class="form-control" value="{{ $estagiario->curso }}">
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold" style="font-size:13px;">Data de Nascimento</label>
-                        <input type="date" name="data_nascimento" class="form-control" value="{{ $estagiario->data_nascimento }}">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">Data de Início</label>
+                            <input type="date" name="data_inicio" class="form-control" value="{{ $estagiario->data_inicio }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" style="font-size:13px;">Data de Término</label>
+                            <input type="date" name="data_termino" class="form-control" value="{{ $estagiario->data_termino }}">
+                        </div>
                     </div>
 
                     <div class="mb-4">

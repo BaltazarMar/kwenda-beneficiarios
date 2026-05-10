@@ -19,7 +19,11 @@ class Estagiario extends Model
         'nome',
         'sexo',
         'bi',
+        'telefone',
+        'curso',
         'data_nascimento',
-        'estado'
+        'data_inicio',
+        'data_termino',
+        'estado',
     ];
 }
