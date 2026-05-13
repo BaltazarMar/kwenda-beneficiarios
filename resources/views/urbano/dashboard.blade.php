@@ -207,11 +207,13 @@
             datasets: [{
                 data: {!! json_encode($porMunicipio->values()) !!},
                 backgroundColor: [
-                    'rgba(217, 119, 6, 0.85)',
-                    'rgba(245, 158, 11, 0.85)',
-                    'rgba(251, 191, 36, 0.85)',
-                    'rgba(252, 211, 77, 0.85)',
-                    'rgba(253, 230, 138, 0.85)',
+                     '#3b82f6', // azul — Saurimo
+                     '#108cb9', // verde — Cassengo
+                     '#f59e0b', // laranja — Muangueji
+                     '#8b5cf6', // roxo
+                     '#ef4444', // vermelho
+                     '#06b6d4', // ciano
+                     '#ec4899', // rosa
                 ],
                 borderWidth: 2,
                 borderColor: '#fff',
