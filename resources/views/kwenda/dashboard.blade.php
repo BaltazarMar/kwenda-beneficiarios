@@ -86,7 +86,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <p class="text-muted mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Nunca Pagos</p>
+                        <p class="text-muted mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Inelegíveis</p>
                         <h2 class="fw-bold mb-0" id="card-nuncapagos" style="color:#0f172a;">{{ number_format($nuncaPagos, 0, ',', '.') }}</h2>
                         <small class="text-muted" id="card-nuncapagos-pct">{{ $total > 0 ? round(($nuncaPagos / $total) * 100, 1) : 0 }}%</small>
                     </div>
@@ -288,7 +288,7 @@
             datasets: [{
                 label: 'Beneficiários pagos',
                 data: [0, 0, 0, 0, 0, 0],
-                backgroundColor: 'rgba(22, 163, 74, 0.7)',
+                backgroundColor:'rgba(37, 99, 235, 0.9)',
                 borderRadius: 6
             }]
         },
