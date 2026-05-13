@@ -109,7 +109,7 @@
                 </div>
                 <hr class="mt-0">
             </div>
-            <div class="card-body pt-0">
+            <div class="card-body pt-0" style="max-height:220px;">
                 <canvas id="graficoMunicipio"></canvas>
             </div>
         </div>
@@ -199,7 +199,7 @@
         }
     };
 
-    // Gráfico Município
+    // Gráfico Município — barras verticais, pequeno e bonito
     new Chart(document.getElementById('graficoMunicipio').getContext('2d'), {
         type: 'bar',
         plugins: [pluginNumeros],
@@ -208,24 +208,45 @@
             datasets: [{
                 data: {!! json_encode($porMunicipio->values()) !!},
                 backgroundColor: [
-                    'rgba(217, 119, 6, 0.8)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(251, 191, 36, 0.8)',
-                    'rgba(252, 211, 77, 0.8)',
-                    'rgba(253, 230, 138, 0.8)',
+                    'rgba(217, 119, 6, 0.85)',
+                    'rgba(245, 158, 11, 0.85)',
+                    'rgba(251, 191, 36, 0.85)',
+                    'rgba(252, 211, 77, 0.85)',
+                    'rgba(253, 230, 138, 0.85)',
                 ],
                 borderRadius: 8,
                 borderSkipped: false,
+                borderWidth: 0,
             }]
         },
         options: {
-            indexAxis: 'y',
             responsive: true,
-            plugins: { legend: { display: false } },
-            layout: { padding: { right: 40 } },
+            maintainAspectRatio: true,
+            aspectRatio: 1.8,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ' ' + Number(ctx.raw).toLocaleString('pt-PT') + ' benef.'
+                    }
+                }
+            },
+            layout: { padding: { top: 22, left: 4, right: 4, bottom: 0 } },
             scales: {
-                x: { display: false, beginAtZero: true },
-                y: { ticks: { font: { size: 12, weight: '600' } }, grid: { display: false } }
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: {
+                        font: { size: 11, weight: '600', family: 'Plus Jakarta Sans' },
+                        color: '#64748b',
+                        maxRotation: 20,
+                        minRotation: 0,
+                    }
+                },
+                y: {
+                    display: false,
+                    beginAtZero: true,
+                }
             }
         }
     });
