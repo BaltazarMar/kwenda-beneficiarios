@@ -92,14 +92,14 @@
 {{-- GRÁFICOS LINHA 1 --}}
 <div class="row g-3 mb-3">
 
-    {{-- MUNICÍPIO --}}
+    {{-- MUNICÍPIO — PIZZA --}}
     <div class="col-12 col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header border-0 pb-0" style="background:transparent;">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <div class="d-flex align-items-center gap-2">
                         <div style="width:32px; height:32px; background:#fffbeb; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-                            <i class="bi bi-geo-alt-fill" style="color:#d97706;"></i>
+                            <i class="bi bi-pie-chart-fill" style="color:#d97706;"></i>
                         </div>
                         <span class="fw-bold" style="font-size:14px;">Distribuição por Município</span>
                     </div>
@@ -109,7 +109,7 @@
                 </div>
                 <hr class="mt-0">
             </div>
-            <div class="card-body pt-0" style="max-height:220px;">
+            <div class="card-body pt-0">
                 <canvas id="graficoMunicipio"></canvas>
             </div>
         </div>
@@ -121,7 +121,7 @@
             <div class="card-header border-0 pb-0" style="background:transparent;">
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <div style="width:32px; height:32px; background:#f0fdf4; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-pie-chart-fill" style="color:#16a34a;"></i>
+                        <i class="bi bi-bar-chart-fill" style="color:#16a34a;"></i>
                     </div>
                     <span class="fw-bold" style="font-size:14px;">Distribuição por Categoria</span>
                 </div>
@@ -199,10 +199,9 @@
         }
     };
 
-    // Gráfico Município — barras verticais, pequeno e bonito
+    // Gráfico Município — doughnut (pizza)
     new Chart(document.getElementById('graficoMunicipio').getContext('2d'), {
-        type: 'bar',
-        plugins: [pluginNumeros],
+        type: 'doughnut',
         data: {
             labels: {!! json_encode($porMunicipio->keys()) !!},
             datasets: [{
@@ -214,44 +213,37 @@
                     'rgba(252, 211, 77, 0.85)',
                     'rgba(253, 230, 138, 0.85)',
                 ],
-                borderRadius: 8,
-                borderSkipped: false,
-                borderWidth: 0,
+                borderWidth: 2,
+                borderColor: '#fff',
+                hoverOffset: 8,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            aspectRatio: 1.8,
+            aspectRatio: 1.6,
             plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: ctx => ' ' + Number(ctx.raw).toLocaleString('pt-PT') + ' benef.'
-                    }
-                }
-            },
-            layout: { padding: { top: 22, left: 4, right: 4, bottom: 0 } },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    border: { display: false },
-                    ticks: {
-                        font: { size: 11, weight: '600', family: 'Plus Jakarta Sans' },
+                legend: {
+                    display: true,
+                    position: 'right',
+                    labels: {
+                        font: { size: 12, family: 'Plus Jakarta Sans' },
                         color: '#64748b',
-                        maxRotation: 20,
-                        minRotation: 0,
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyleWidth: 8,
                     }
                 },
-                y: {
-                    display: false,
-                    beginAtZero: true,
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ' ' + ctx.label + ': ' + Number(ctx.raw).toLocaleString('pt-PT') + ' benef.'
+                    }
                 }
             }
         }
     });
 
-    // Gráfico Categoria
+    // Gráfico Categoria — azul puro
     new Chart(document.getElementById('graficoCategoria').getContext('2d'), {
         type: 'bar',
         plugins: [pluginNumeros],
@@ -259,7 +251,7 @@
             labels: {!! json_encode($porCategoria->keys()) !!},
             datasets: [{
                 data: {!! json_encode($porCategoria->values()) !!},
-                backgroundColor: 'rgba(22, 163, 74, 0.7)',
+                backgroundColor: 'rgba(37, 99, 235, 0.9)',
                 borderRadius: 6
             }]
         },
@@ -274,7 +266,7 @@
         }
     });
 
-    // Gráfico Bairro
+    // Gráfico Bairro — azul puro
     new Chart(document.getElementById('graficoBairro').getContext('2d'), {
         type: 'bar',
         plugins: [pluginNumeros],
@@ -282,7 +274,7 @@
             labels: {!! json_encode($porBairro->keys()) !!},
             datasets: [{
                 data: {!! json_encode($porBairro->values()) !!},
-                backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                backgroundColor: 'rgba(37, 99, 235, 0.9)',
                 borderRadius: 6
             }]
         },
