@@ -27,19 +27,20 @@ class BeneficiariosUrbanoImport implements
         if (empty($identificador)) return null;
 
         return BeneficiarioUrbano::firstOrCreate(
-            ['identificador' => $identificador],
-            [
-                'nome'             => $row['nome_completo'] ?? null,
-                'sexo'             => $this->convertSexo($row['sexo'] ?? ''),
-                'ip1'              => $row['ip1'] ?? null,
-                'data_nascimento'  => $this->parseData($row['data_de_nascimento'] ?? null),
-                'tipo_documento'   => $row['tipo_de_documento'] ?? null,
-                'numero_documento' => $row['do_documento'] ?? null,
-                'bairro'           => $row['bairro'] ?? null,
-                'categoria'        => $row['categoria'] ?? null,
-                'observacao'       => $row['observacao'] ?? null,
-            ]
-        );
+    ['identificador' => $identificador],
+    [
+        'nome'             => $row['nome_completo'] ?? null,
+        'sexo'             => $this->convertSexo($row['sexo'] ?? ''),
+        'ip1'              => $row['ip1'] ?? null,
+        'data_nascimento'  => $this->parseData($row['data_de_nascimento'] ?? null),
+        'tipo_documento'   => $row['tipo_de_documento'] ?? null,
+        'numero_documento' => $row['do_documento'] ?? null,
+        'municipio'        => $row['municipio'] ?? null,
+        'bairro'           => $row['bairro'] ?? null,
+        'categoria'        => $row['categoria'] ?? null,
+        'observacao'       => $row['observacao'] ?? null,
+    ]
+);
     }
 
     private function convertSexo($valor)

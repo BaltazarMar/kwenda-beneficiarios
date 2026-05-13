@@ -19,6 +19,7 @@ class BeneficiarioUrbano extends Model
         'data_nascimento',
         'tipo_documento',
         'numero_documento',
+        'municipio',
         'bairro',
         'categoria',
         'observacao',
