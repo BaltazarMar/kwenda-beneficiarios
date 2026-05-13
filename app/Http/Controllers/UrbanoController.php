@@ -11,31 +11,36 @@ class UrbanoController extends Controller
 {
     // ================= DASHBOARD =================
     public function dashboard()
-    {
-        $total     = BeneficiarioUrbano::count();
-        $masculino = BeneficiarioUrbano::where('sexo', 'M')->count();
-        $feminino  = BeneficiarioUrbano::where('sexo', 'F')->count();
+{
+    $total     = BeneficiarioUrbano::count();
+    $masculino = BeneficiarioUrbano::where('sexo', 'M')->count();
+    $feminino  = BeneficiarioUrbano::where('sexo', 'F')->count();
 
-        $porBairro = BeneficiarioUrbano::selectRaw('bairro, COUNT(*) as total')
-            ->whereNotNull('bairro')
-            ->groupBy('bairro')
-            ->orderByDesc('total')
-            ->pluck('total', 'bairro');
+    $porBairro = BeneficiarioUrbano::selectRaw('bairro, COUNT(*) as total')
+        ->whereNotNull('bairro')
+        ->groupBy('bairro')
+        ->orderByDesc('total')
+        ->pluck('total', 'bairro');
 
-        $porCategoria = BeneficiarioUrbano::selectRaw('categoria, COUNT(*) as total')
-            ->whereNotNull('categoria')
-            ->groupBy('categoria')
-            ->orderByDesc('total')
-            ->pluck('total', 'categoria');
+    $porCategoria = BeneficiarioUrbano::selectRaw('categoria, COUNT(*) as total')
+        ->whereNotNull('categoria')
+        ->groupBy('categoria')
+        ->orderByDesc('total')
+        ->pluck('total', 'categoria');
 
-        $bairros = BeneficiarioUrbano::whereNotNull('bairro')->distinct()->count('bairro');
+    $porMunicipio = BeneficiarioUrbano::selectRaw('municipio, COUNT(*) as total')
+        ->whereNotNull('municipio')
+        ->groupBy('municipio')
+        ->orderByDesc('total')
+        ->pluck('total', 'municipio');
 
-        return view('urbano.dashboard', compact(
-            'total', 'masculino', 'feminino',
-            'porBairro', 'porCategoria', 'bairros'
-        ));
-    }
+    $bairros = BeneficiarioUrbano::whereNotNull('bairro')->distinct()->count('bairro');
 
+    return view('urbano.dashboard', compact(
+        'total', 'masculino', 'feminino',
+        'porBairro', 'porCategoria', 'porMunicipio', 'bairros'
+    ));
+}
     // ================= LISTAGEM =================
     public function index(Request $request)
     {

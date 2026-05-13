@@ -89,25 +89,33 @@
     </div>
 </div>
 
-{{-- GRÁFICOS --}}
-<div class="row g-3">
+{{-- GRÁFICOS LINHA 1 --}}
+<div class="row g-3 mb-3">
+
+    {{-- MUNICÍPIO --}}
     <div class="col-12 col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header border-0 pb-0" style="background:transparent;">
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <div style="width:32px; height:32px; background:#eff6ff; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-bar-chart-fill" style="color:#3b82f6;"></i>
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:32px; height:32px; background:#fffbeb; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                            <i class="bi bi-geo-alt-fill" style="color:#d97706;"></i>
+                        </div>
+                        <span class="fw-bold" style="font-size:14px;">Distribuição por Município</span>
                     </div>
-                    <span class="fw-bold" style="font-size:14px;">Distribuição por Bairro</span>
+                    <span class="badge" style="background:#fffbeb; color:#d97706; font-size:12px; font-weight:600;">
+                        {{ $porMunicipio->count() }} municípios
+                    </span>
                 </div>
                 <hr class="mt-0">
             </div>
             <div class="card-body pt-0">
-                <canvas id="graficoBairro"></canvas>
+                <canvas id="graficoMunicipio"></canvas>
             </div>
         </div>
     </div>
 
+    {{-- CATEGORIA --}}
     <div class="col-12 col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header border-0 pb-0" style="background:transparent;">
@@ -121,6 +129,46 @@
             </div>
             <div class="card-body pt-0">
                 <canvas id="graficoCategoria"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{{-- GRÁFICO BAIRRO --}}
+<div class="row g-3">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header border-0 pb-0" style="background:transparent;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:32px; height:32px; background:#eff6ff; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                            <i class="bi bi-bar-chart-fill" style="color:#3b82f6;"></i>
+                        </div>
+                        <span class="fw-bold" style="font-size:14px;">Distribuição por Bairro</span>
+                    </div>
+                    <span class="badge" style="background:#eff6ff; color:#3b82f6; font-size:12px; font-weight:600;">
+                        {{ $porBairro->count() }} bairros
+                    </span>
+                </div>
+                <hr class="mt-0">
+            </div>
+            <div class="card-body pt-0">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <canvas id="graficoBairro" style="max-height:280px;"></canvas>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="max-height:280px; overflow-y:auto;">
+                            @foreach($porBairro as $bairro => $total)
+                            <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid #f1f5f9;">
+                                <span style="font-size:13px; color:#0f172a;">{{ $bairro }}</span>
+                                <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700;">{{ number_format($total, 0, ',', '.') }}</span>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -151,15 +199,46 @@
         }
     };
 
-    // Gráfico Bairro
-    new Chart(document.getElementById('graficoBairro').getContext('2d'), {
+    // Gráfico Município
+    new Chart(document.getElementById('graficoMunicipio').getContext('2d'), {
         type: 'bar',
         plugins: [pluginNumeros],
         data: {
-            labels: {!! json_encode($porBairro->keys()) !!},
+            labels: {!! json_encode($porMunicipio->keys()) !!},
             datasets: [{
-                data: {!! json_encode($porBairro->values()) !!},
-                backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                data: {!! json_encode($porMunicipio->values()) !!},
+                backgroundColor: [
+                    'rgba(217, 119, 6, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(251, 191, 36, 0.8)',
+                    'rgba(252, 211, 77, 0.8)',
+                    'rgba(253, 230, 138, 0.8)',
+                ],
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            layout: { padding: { right: 40 } },
+            scales: {
+                x: { display: false, beginAtZero: true },
+                y: { ticks: { font: { size: 12, weight: '600' } }, grid: { display: false } }
+            }
+        }
+    });
+
+    // Gráfico Categoria
+    new Chart(document.getElementById('graficoCategoria').getContext('2d'), {
+        type: 'bar',
+        plugins: [pluginNumeros],
+        data: {
+            labels: {!! json_encode($porCategoria->keys()) !!},
+            datasets: [{
+                data: {!! json_encode($porCategoria->values()) !!},
+                backgroundColor: 'rgba(22, 163, 74, 0.7)',
                 borderRadius: 6
             }]
         },
@@ -174,15 +253,15 @@
         }
     });
 
-    // Gráfico Categoria
-    new Chart(document.getElementById('graficoCategoria').getContext('2d'), {
+    // Gráfico Bairro
+    new Chart(document.getElementById('graficoBairro').getContext('2d'), {
         type: 'bar',
         plugins: [pluginNumeros],
         data: {
-            labels: {!! json_encode($porCategoria->keys()) !!},
+            labels: {!! json_encode($porBairro->keys()) !!},
             datasets: [{
-                data: {!! json_encode($porCategoria->values()) !!},
-                backgroundColor: 'rgba(22, 163, 74, 0.7)',
+                data: {!! json_encode($porBairro->values()) !!},
+                backgroundColor: 'rgba(59, 130, 246, 0.7)',
                 borderRadius: 6
             }]
         },
