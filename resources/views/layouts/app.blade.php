@@ -178,14 +178,34 @@
             <a href="{{ url('/funcoes') }}" class="nav-link {{ request()->is('funcoes*') ? 'active' : '' }}">
                 <i class="bi bi-briefcase-fill"></i> Funções
             </a>
-            <a href="{{ url('/importar') }}" class="nav-link {{ request()->is('importar*') ? 'active' : '' }}">
-                <i class="bi bi-upload"></i> Importar
+            <a href="{{ url('/importar') }}" class="nav-link {{ request()->is('importar') ? 'active' : '' }}">
+                <i class="bi bi-upload"></i> Importar Rural
             </a>
+            <a href="{{ url('/urbano-importar') }}" class="nav-link {{ request()->is('urbano-importar*') ? 'active' : '' }}">
+                <i class="bi bi-upload"></i> Importar Urbano
+            </a>
+            <a href="{{ url('/kobo/sync') }}" class="nav-link {{ request()->is('kobo*') ? 'active' : '' }}">
+                <i class="bi bi-cloud-arrow-down-fill"></i> KoboToolbox
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Kwenda Rural</div>
             <a href="{{ url('/kwenda-dashboard') }}" class="nav-link {{ request()->is('kwenda-dashboard*') ? 'active' : '' }}">
-                <i class="bi bi-bar-chart-fill"></i> Dashboard Kwenda
+                <i class="bi bi-bar-chart-fill"></i> Dashboard Rural
             </a>
-            <a href="{{ url('/beneficiarios') }}" class="nav-link">
-                <i class="bi bi-bar-chart-fill"></i> Lista dos beneficiarios
+            <a href="{{ url('/beneficiarios') }}" class="nav-link {{ request()->is('beneficiarios*') ? 'active' : '' }}">
+                <i class="bi bi-list-ul"></i> Beneficiários Rurais
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Kwenda Urbano</div>
+            <a href="{{ url('/urbano-dashboard') }}" class="nav-link {{ request()->is('urbano-dashboard*') ? 'active' : '' }}">
+                <i class="bi bi-buildings-fill"></i> Dashboard Urbano
+            </a>
+            <a href="{{ url('/urbano-beneficiarios') }}" class="nav-link {{ request()->is('urbano-beneficiarios*') ? 'active' : '' }}">
+                <i class="bi bi-list-ul"></i> Beneficiários Urbanos
             </a>
         </div>
 

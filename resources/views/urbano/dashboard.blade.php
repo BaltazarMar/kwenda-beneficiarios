@@ -1,0 +1,200 @@
+@extends('layouts.app')
+
+@section('titulo', 'Dashboard Kwenda Urbano')
+
+@section('content')
+
+{{-- TOPO --}}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h4 class="mb-0 fw-bold">Dashboard Kwenda Urbano</h4>
+        <p class="text-muted mb-0" style="font-size:13px;">Estatísticas dos beneficiários urbanos — Saurimo</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url('/urbano-importar') }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-upload"></i> Importar Dados
+        </a>
+        <a href="{{ url('/urbano-beneficiarios') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-list-ul"></i> Ver Lista
+        </a>
+    </div>
+</div>
+
+{{-- CARDS --}}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3b82f6 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Total Beneficiários</p>
+                        <h2 class="fw-bold mb-0" style="color:#0f172a;">{{ number_format($total, 0, ',', '.') }}</h2>
+                    </div>
+                    <div style="width:40px; height:40px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-people-fill" style="color:#3b82f6; font-size:18px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3b82f6 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Masculino</p>
+                        <h2 class="fw-bold mb-0" style="color:#3b82f6;">{{ number_format($masculino, 0, ',', '.') }}</h2>
+                        <small class="text-muted">{{ $total > 0 ? round(($masculino / $total) * 100, 1) : 0 }}%</small>
+                    </div>
+                    <div style="width:40px; height:40px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-gender-male" style="color:#3b82f6; font-size:18px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #ec4899 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Feminino</p>
+                        <h2 class="fw-bold mb-0" style="color:#ec4899;">{{ number_format($feminino, 0, ',', '.') }}</h2>
+                        <small class="text-muted">{{ $total > 0 ? round(($feminino / $total) * 100, 1) : 0 }}%</small>
+                    </div>
+                    <div style="width:40px; height:40px; background:#fdf2f8; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-gender-female" style="color:#ec4899; font-size:18px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #d97706 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Bairros</p>
+                        <h2 class="fw-bold mb-0" style="color:#d97706;">{{ number_format($bairros, 0, ',', '.') }}</h2>
+                    </div>
+                    <div style="width:40px; height:40px; background:#fffbeb; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-building" style="color:#d97706; font-size:18px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- GRÁFICOS --}}
+<div class="row g-3">
+    <div class="col-12 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header border-0 pb-0" style="background:transparent;">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div style="width:32px; height:32px; background:#eff6ff; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-bar-chart-fill" style="color:#3b82f6;"></i>
+                    </div>
+                    <span class="fw-bold" style="font-size:14px;">Distribuição por Bairro</span>
+                </div>
+                <hr class="mt-0">
+            </div>
+            <div class="card-body pt-0">
+                <canvas id="graficoBairro"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header border-0 pb-0" style="background:transparent;">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div style="width:32px; height:32px; background:#f0fdf4; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-pie-chart-fill" style="color:#16a34a;"></i>
+                    </div>
+                    <span class="fw-bold" style="font-size:14px;">Distribuição por Categoria</span>
+                </div>
+                <hr class="mt-0">
+            </div>
+            <div class="card-body pt-0">
+                <canvas id="graficoCategoria"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const pluginNumeros = {
+        id: 'pluginNumeros',
+        afterDatasetsDraw(chart) {
+            const { ctx, data } = chart;
+            ctx.save();
+            data.datasets.forEach((dataset, i) => {
+                const meta = chart.getDatasetMeta(i);
+                meta.data.forEach((bar, index) => {
+                    const value = dataset.data[index];
+                    ctx.font = 'bold 10px Arial';
+                    ctx.fillStyle = '#64748b';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(Number(value).toLocaleString('pt-PT'), bar.x, bar.y - 4);
+                });
+            });
+            ctx.restore();
+        }
+    };
+
+    // Gráfico Bairro
+    new Chart(document.getElementById('graficoBairro').getContext('2d'), {
+        type: 'bar',
+        plugins: [pluginNumeros],
+        data: {
+            labels: {!! json_encode($porBairro->keys()) !!},
+            datasets: [{
+                data: {!! json_encode($porBairro->values()) !!},
+                backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            layout: { padding: { top: 20 } },
+            scales: {
+                x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
+                y: { display: false, beginAtZero: true }
+            }
+        }
+    });
+
+    // Gráfico Categoria
+    new Chart(document.getElementById('graficoCategoria').getContext('2d'), {
+        type: 'bar',
+        plugins: [pluginNumeros],
+        data: {
+            labels: {!! json_encode($porCategoria->keys()) !!},
+            datasets: [{
+                data: {!! json_encode($porCategoria->values()) !!},
+                backgroundColor: 'rgba(22, 163, 74, 0.7)',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            layout: { padding: { top: 20 } },
+            scales: {
+                x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
+                y: { display: false, beginAtZero: true }
+            }
+        }
+    });
+</script>
+@endpush

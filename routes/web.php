@@ -8,6 +8,7 @@ use App\Http\Controllers\FuncaoController;
 use App\Http\Controllers\EfetividadeController;
 use App\Http\Controllers\BeneficiarioController;
 use App\Http\Controllers\KoboSyncController;
+use App\Http\Controllers\UrbanoController;
 
 // ================= PÁGINA INICIAL =================
 Route::get('/', function () {
@@ -116,6 +117,14 @@ Route::prefix('kobo')->name('kobo.')->middleware(['auth'])->group(function () {
     Route::get('/exportar', [KoboSyncController::class, 'exportarExcel'])->name('exportar');
     Route::post('/eliminar-individual', [KoboSyncController::class, 'eliminarIndividual'])->name('eliminar.individual');
     Route::post('/limpar-todos', [KoboSyncController::class, 'limparTodos'])->name('limpar.todos');
+});
+
+// Kwenda Urbano
+Route::get('/urbano-dashboard', [UrbanoController::class, 'dashboard']);
+Route::get('/urbano-beneficiarios', [UrbanoController::class, 'index']);
+Route::post('/urbano-importar', [UrbanoController::class, 'importar']);
+Route::get('/urbano-importar', function () {
+    return view('urbano.importar');
 });
 
 require __DIR__.'/auth.php';

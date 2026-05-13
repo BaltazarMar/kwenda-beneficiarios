@@ -417,48 +417,65 @@
     </div>
 
     <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-section-title">Principal</div>
-            <a href="{{ url('/painel') }}" class="nav-link active">
-                <i class="bi bi-house-door-fill"></i> Início
-            </a>
-            
-        </div>
+    <div class="nav-section">
+        <div class="nav-section-title">Principal</div>
+        <a href="{{ url('/painel') }}" class="nav-link active">
+            <i class="bi bi-house-door-fill"></i> Início
+        </a>
+    </div>
 
-        <div class="nav-section">
-            <div class="nav-section-title">Gestão</div>
-            <a href="{{ url('/funcionarios') }}" class="nav-link">
-                <i class="bi bi-people-fill"></i> Funcionários
-            </a>
-            <a href="{{ url('/estagiarios') }}" class="nav-link">
-                <i class="bi bi-person-badge-fill"></i> Estagiários
-            </a>
-            <a href="{{ url('/adecos') }}" class="nav-link">
-                <i class="bi bi-building"></i> ADECOS
-            </a>
-            <a href="{{ url('/funcoes') }}" class="nav-link">
-                <i class="bi bi-briefcase-fill"></i> Funções
-            </a>
-            <a href="{{ url('/importar') }}" class="nav-link">
-                <i class="bi bi-upload"></i> Importar
-            </a>
-            <a href="{{ url('/kwenda-dashboard') }}" class="nav-link">
-                <i class="bi bi-bar-chart-fill"></i> Dashboard Kwenda
-            </a>
+    <div class="nav-section">
+        <div class="nav-section-title">Gestão</div>
+        <a href="{{ url('/funcionarios') }}" class="nav-link">
+            <i class="bi bi-people-fill"></i> Funcionários
+        </a>
+        <a href="{{ url('/estagiarios') }}" class="nav-link">
+            <i class="bi bi-person-badge-fill"></i> Estagiários
+        </a>
+        <a href="{{ url('/adecos') }}" class="nav-link">
+            <i class="bi bi-building"></i> ADECOS
+        </a>
+        <a href="{{ url('/funcoes') }}" class="nav-link">
+            <i class="bi bi-briefcase-fill"></i> Funções
+        </a>
+        <a href="{{ url('/importar') }}" class="nav-link">
+            <i class="bi bi-upload"></i> Importar Rural
+        </a>
+        <a href="{{ url('/urbano-importar') }}" class="nav-link">
+            <i class="bi bi-upload"></i> Importar Urbano
+        </a>
+        <a href="{{ url('/kobo/sync') }}" class="nav-link">
+            <i class="bi bi-cloud-arrow-down-fill"></i> KoboToolbox
+        </a>
+    </div>
 
-            <a href="{{ url('/kobo/sync') }}" class="nav-link">
-                <i class="bi bi-bar-chart-fill"></i> KoboToolboxs
-            </a>
-            
-        </div>
+    <div class="nav-section">
+        <div class="nav-section-title">Kwenda Rural</div>
+        <a href="{{ url('/kwenda-dashboard') }}" class="nav-link">
+            <i class="bi bi-bar-chart-fill"></i> Dashboard Rural
+        </a>
+        <a href="{{ url('/beneficiarios') }}" class="nav-link">
+            <i class="bi bi-list-ul"></i> Beneficiários Rurais
+        </a>
+    </div>
 
-        <div class="nav-section">
-            <div class="nav-section-title">Relatórios</div>
-            <a href="{{ url('/efetividade') }}" class="nav-link">
-                <i class="bi bi-file-earmark-bar-graph-fill"></i> Efetividade
-            </a>
-        </div>
-    </nav>
+    <div class="nav-section">
+        <div class="nav-section-title">Kwenda Urbano</div>
+        <a href="{{ url('/urbano-dashboard') }}" class="nav-link">
+            <i class="bi bi-buildings-fill"></i> Dashboard Urbano
+        </a>
+        <a href="{{ url('/urbano-beneficiarios') }}" class="nav-link">
+            <i class="bi bi-list-ul"></i> Beneficiários Urbanos
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-section-title">Relatórios</div>
+        <a href="{{ url('/efetividade') }}" class="nav-link">
+            <i class="bi bi-file-earmark-bar-graph-fill"></i> Efetividade
+        </a>
+    </div>
+</nav>
 
     <div class="sidebar-footer">
         <a href="{{ url('/sair') }}" class="btn-sair">
