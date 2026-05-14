@@ -150,6 +150,9 @@
                         {{ $porBairro->count() }} bairros
                     </span>
                 </div>
+                <small class="text-muted px-1" style="font-size:10px;">
+                    <i class="bi bi-hand-index"></i> Clica numa barra ou bairro para ver a lista
+                </small>
                 <hr class="mt-1 mb-0">
             </div>
             <div class="card-body p-2">
@@ -160,10 +163,12 @@
                     <div class="col-md-4">
                         <div id="lista-bairros" style="max-height:220px; overflow-y:auto;">
                             @foreach($porBairro as $bairro => $total)
-                            <div class="d-flex justify-content-between align-items-center py-1" style="border-bottom:1px solid #f1f5f9;">
+                            <a href="{{ url('/urbano-beneficiarios?bairro=' . urlencode($bairro)) }}"
+                               class="d-flex justify-content-between align-items-center py-1 text-decoration-none"
+                               style="border-bottom:1px solid #f1f5f9;">
                                 <span style="font-size:12px; color:#0f172a;">{{ $bairro }}</span>
                                 <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700; font-size:11px;">{{ number_format($total, 0, ',', '.') }}</span>
-                            </div>
+                            </a>
                             @endforeach
                         </div>
                     </div>
@@ -308,6 +313,17 @@
             scales: {
                 x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
                 y: { display: false, beginAtZero: true }
+            },
+            onClick: (event, elements) => {
+                if (elements.length > 0) {
+                    const bairro = graficoBairro.data.labels[elements[0].index];
+                    let url = `/urbano-beneficiarios?bairro=${encodeURIComponent(bairro)}`;
+                    if (municipioActivo) url += `&municipio=${encodeURIComponent(municipioActivo)}`;
+                    window.location.href = url;
+                }
+            },
+            onHover: (event, elements) => {
+                event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
             }
         }
     });
@@ -339,11 +355,14 @@
                 const lista = document.getElementById('lista-bairros');
                 lista.innerHTML = '';
                 Object.entries(data.porBairro).forEach(([bairro, total]) => {
+                    const mParam = municipioActivo ? `&municipio=${encodeURIComponent(municipioActivo)}` : '';
                     lista.innerHTML += `
-                        <div class="d-flex justify-content-between align-items-center py-1" style="border-bottom:1px solid #f1f5f9;">
+                        <a href="/urbano-beneficiarios?bairro=${encodeURIComponent(bairro)}${mParam}"
+                           class="d-flex justify-content-between align-items-center py-1 text-decoration-none"
+                           style="border-bottom:1px solid #f1f5f9;">
                             <span style="font-size:12px; color:#0f172a;">${bairro}</span>
                             <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700; font-size:11px;">${formatNum(total)}</span>
-                        </div>`;
+                        </a>`;
                 });
             });
     }
