@@ -226,6 +226,16 @@
                         padding: 10,
                         usePointStyle: true,
                         pointStyleWidth: 7,
+                        generateLabels: (chart) => {
+                            const data = chart.data;
+                            return data.labels.map((label, i) => ({
+                                text: `${label}: ${Number(data.datasets[0].data[i]).toLocaleString('pt-PT')}`,
+                                fillStyle: data.datasets[0].backgroundColor[i],
+                                strokeStyle: '#fff',
+                                pointStyle: 'circle',
+                                index: i
+                            }));
+                        }
                     }
                 },
                 tooltip: {
