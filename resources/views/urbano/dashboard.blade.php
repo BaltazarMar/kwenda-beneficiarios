@@ -7,7 +7,6 @@
 {{-- TOPO --}}
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-2">
-        {{-- FILTRO ACTIVO --}}
         <div id="filtro-activo" class="d-none d-flex align-items-center gap-2">
             <span class="badge px-3 py-2" style="background:#eff6ff; color:#3b82f6; font-size:13px;" id="municipio-label"></span>
             <button class="btn btn-sm btn-outline-danger" id="btn-limpar">
@@ -42,7 +41,6 @@
             </div>
         </div>
     </div>
-
     <div class="col-6 col-md-3">
         <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3b82f6 !important;">
             <div class="card-body py-2 px-3">
@@ -59,7 +57,6 @@
             </div>
         </div>
     </div>
-
     <div class="col-6 col-md-3">
         <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #ec4899 !important;">
             <div class="card-body py-2 px-3">
@@ -76,7 +73,6 @@
             </div>
         </div>
     </div>
-
     <div class="col-6 col-md-3">
         <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #d97706 !important;">
             <div class="card-body py-2 px-3">
@@ -94,11 +90,11 @@
     </div>
 </div>
 
-{{-- GRÁFICOS LINHA 1 --}}
+{{-- GRÁFICOS LINHA 1: MUNICÍPIO + CATEGORIA --}}
 <div class="row g-2 mb-2">
 
     {{-- MUNICÍPIO — PIZZA --}}
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header border-0 pb-0 pt-2 px-3" style="background:transparent;">
                 <div class="d-flex align-items-center justify-content-between mb-1">
@@ -106,46 +102,49 @@
                         <div style="width:26px; height:26px; background:#fffbeb; border-radius:6px; display:flex; align-items:center; justify-content:center;">
                             <i class="bi bi-pie-chart-fill" style="color:#d97706; font-size:12px;"></i>
                         </div>
-                        <span class="fw-bold" style="font-size:13px;">Por Município</span>
+                        <span class="fw-bold" style="font-size:13px;">Distribuição por Município</span>
                     </div>
                     <small class="text-muted" style="font-size:10px;">Clica para filtrar</small>
                 </div>
                 <hr class="mt-1 mb-0">
             </div>
-            <div class="card-body p-2">
-                <canvas id="graficoMunicipio" style="max-height:180px;"></canvas>
+            <div class="card-body p-2" style="height:220px;">
+                <canvas id="graficoMunicipio"></canvas>
             </div>
         </div>
     </div>
 
     {{-- CATEGORIA --}}
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header border-0 pb-0 pt-2 px-3" style="background:transparent;">
                 <div class="d-flex align-items-center gap-2 mb-1">
                     <div style="width:26px; height:26px; background:#f0fdf4; border-radius:6px; display:flex; align-items:center; justify-content:center;">
                         <i class="bi bi-bar-chart-fill" style="color:#16a34a; font-size:12px;"></i>
                     </div>
-                    <span class="fw-bold" style="font-size:13px;">Por Categoria</span>
+                    <span class="fw-bold" style="font-size:13px;">Distribuição por Categoria</span>
                 </div>
                 <hr class="mt-1 mb-0">
             </div>
-            <div class="card-body p-2">
-                <canvas id="graficoCategoria" style="max-height:180px;"></canvas>
+            <div class="card-body p-2" style="height:220px;">
+                <canvas id="graficoCategoria"></canvas>
             </div>
         </div>
     </div>
 
-    {{-- BAIRRO --}}
-    <div class="col-12 col-md-4">
-        <div class="card border-0 shadow-sm h-100">
+</div>
+
+{{-- GRÁFICO BAIRRO --}}
+<div class="row g-2">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
             <div class="card-header border-0 pb-0 pt-2 px-3" style="background:transparent;">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div class="d-flex align-items-center gap-2">
                         <div style="width:26px; height:26px; background:#eff6ff; border-radius:6px; display:flex; align-items:center; justify-content:center;">
                             <i class="bi bi-bar-chart-fill" style="color:#3b82f6; font-size:12px;"></i>
                         </div>
-                        <span class="fw-bold" style="font-size:13px;">Por Bairro</span>
+                        <span class="fw-bold" style="font-size:13px;">Distribuição por Bairro</span>
                     </div>
                     <span class="badge" id="badge-bairros" style="background:#eff6ff; color:#3b82f6; font-size:11px; font-weight:600;">
                         {{ $porBairro->count() }} bairros
@@ -155,15 +154,15 @@
             </div>
             <div class="card-body p-2">
                 <div class="row g-2">
-                    <div class="col-7">
-                        <canvas id="graficoBairro" style="max-height:180px;"></canvas>
+                    <div class="col-md-8">
+                        <canvas id="graficoBairro" style="max-height:220px;"></canvas>
                     </div>
-                    <div class="col-5">
-                        <div id="lista-bairros" style="max-height:180px; overflow-y:auto;">
+                    <div class="col-md-4">
+                        <div id="lista-bairros" style="max-height:220px; overflow-y:auto;">
                             @foreach($porBairro as $bairro => $total)
                             <div class="d-flex justify-content-between align-items-center py-1" style="border-bottom:1px solid #f1f5f9;">
-                                <span style="font-size:11px; color:#0f172a;">{{ $bairro }}</span>
-                                <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700; font-size:10px;">{{ number_format($total, 0, ',', '.') }}</span>
+                                <span style="font-size:12px; color:#0f172a;">{{ $bairro }}</span>
+                                <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700; font-size:11px;">{{ number_format($total, 0, ',', '.') }}</span>
                             </div>
                             @endforeach
                         </div>
@@ -172,7 +171,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 @endsection
@@ -221,13 +219,13 @@
             plugins: {
                 legend: {
                     display: true,
-                    position: 'bottom',
+                    position: 'right',
                     labels: {
-                        font: { size: 10, family: 'Plus Jakarta Sans' },
+                        font: { size: 11, family: 'Plus Jakarta Sans' },
                         color: '#64748b',
-                        padding: 6,
+                        padding: 10,
                         usePointStyle: true,
-                        pointStyleWidth: 6,
+                        pointStyleWidth: 7,
                     }
                 },
                 tooltip: {
@@ -274,7 +272,7 @@
             plugins: { legend: { display: false } },
             layout: { padding: { top: 16 } },
             scales: {
-                x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 9 } }, grid: { display: false } },
+                x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
                 y: { display: false, beginAtZero: true }
             }
         }
@@ -298,7 +296,7 @@
             plugins: { legend: { display: false } },
             layout: { padding: { top: 16 } },
             scales: {
-                x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 9 } }, grid: { display: false } },
+                x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
                 y: { display: false, beginAtZero: true }
             }
         }
@@ -333,8 +331,8 @@
                 Object.entries(data.porBairro).forEach(([bairro, total]) => {
                     lista.innerHTML += `
                         <div class="d-flex justify-content-between align-items-center py-1" style="border-bottom:1px solid #f1f5f9;">
-                            <span style="font-size:11px; color:#0f172a;">${bairro}</span>
-                            <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700; font-size:10px;">${formatNum(total)}</span>
+                            <span style="font-size:12px; color:#0f172a;">${bairro}</span>
+                            <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700; font-size:11px;">${formatNum(total)}</span>
                         </div>`;
                 });
             });
