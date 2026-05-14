@@ -6,11 +6,7 @@
 
 {{-- TOPO --}}
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <div>
-        <h4 class="mb-0 fw-bold">Dashboard Kwenda Urbano</h4>
-        <p class="text-muted mb-0" style="font-size:13px;">Estatísticas dos beneficiários urbanos — Saurimo</p>
-    </div>
-    <div class="d-flex align-items-center gap-2 flex-wrap">
+    <div class="d-flex align-items-center gap-2">
         {{-- FILTRO ACTIVO --}}
         <div id="filtro-activo" class="d-none d-flex align-items-center gap-2">
             <span class="badge px-3 py-2" style="background:#eff6ff; color:#3b82f6; font-size:13px;" id="municipio-label"></span>
@@ -18,6 +14,8 @@
                 <i class="bi bi-x-lg"></i> Limpar filtro
             </button>
         </div>
+    </div>
+    <div class="d-flex gap-2">
         <a href="{{ url('/urbano-importar') }}" class="btn btn-sm btn-primary">
             <i class="bi bi-upload"></i> Importar Dados
         </a>
@@ -28,17 +26,17 @@
 </div>
 
 {{-- CARDS --}}
-<div class="row g-3 mb-4">
+<div class="row g-2 mb-3">
     <div class="col-6 col-md-3">
         <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3b82f6 !important;">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="text-muted mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Total Beneficiários</p>
-                        <h2 class="fw-bold mb-0" id="card-total" style="color:#0f172a;">{{ number_format($total, 0, ',', '.') }}</h2>
+                        <p class="text-muted mb-0" style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Total Beneficiários</p>
+                        <h3 class="fw-bold mb-0" id="card-total" style="color:#0f172a;">{{ number_format($total, 0, ',', '.') }}</h3>
                     </div>
-                    <div style="width:40px; height:40px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-people-fill" style="color:#3b82f6; font-size:18px;"></i>
+                    <div style="width:36px; height:36px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-people-fill" style="color:#3b82f6; font-size:16px;"></i>
                     </div>
                 </div>
             </div>
@@ -47,15 +45,15 @@
 
     <div class="col-6 col-md-3">
         <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3b82f6 !important;">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="text-muted mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Masculino</p>
-                        <h2 class="fw-bold mb-0" id="card-masculino" style="color:#3b82f6;">{{ number_format($masculino, 0, ',', '.') }}</h2>
+                        <p class="text-muted mb-0" style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Masculino</p>
+                        <h3 class="fw-bold mb-0" id="card-masculino" style="color:#3b82f6;">{{ number_format($masculino, 0, ',', '.') }}</h3>
                         <small class="text-muted" id="card-masculino-pct">{{ $total > 0 ? round(($masculino / $total) * 100, 1) : 0 }}%</small>
                     </div>
-                    <div style="width:40px; height:40px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-gender-male" style="color:#3b82f6; font-size:18px;"></i>
+                    <div style="width:36px; height:36px; background:#eff6ff; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-gender-male" style="color:#3b82f6; font-size:16px;"></i>
                     </div>
                 </div>
             </div>
@@ -64,15 +62,15 @@
 
     <div class="col-6 col-md-3">
         <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #ec4899 !important;">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="text-muted mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Feminino</p>
-                        <h2 class="fw-bold mb-0" id="card-feminino" style="color:#ec4899;">{{ number_format($feminino, 0, ',', '.') }}</h2>
+                        <p class="text-muted mb-0" style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Feminino</p>
+                        <h3 class="fw-bold mb-0" id="card-feminino" style="color:#ec4899;">{{ number_format($feminino, 0, ',', '.') }}</h3>
                         <small class="text-muted" id="card-feminino-pct">{{ $total > 0 ? round(($feminino / $total) * 100, 1) : 0 }}%</small>
                     </div>
-                    <div style="width:40px; height:40px; background:#fdf2f8; border-radius:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-gender-female" style="color:#ec4899; font-size:18px;"></i>
+                    <div style="width:36px; height:36px; background:#fdf2f8; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-gender-female" style="color:#ec4899; font-size:16px;"></i>
                     </div>
                 </div>
             </div>
@@ -81,14 +79,14 @@
 
     <div class="col-6 col-md-3">
         <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #d97706 !important;">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="text-muted mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Bairros</p>
-                        <h2 class="fw-bold mb-0" id="card-bairros" style="color:#d97706;">{{ number_format($bairros, 0, ',', '.') }}</h2>
+                        <p class="text-muted mb-0" style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Bairros</p>
+                        <h3 class="fw-bold mb-0" id="card-bairros" style="color:#d97706;">{{ number_format($bairros, 0, ',', '.') }}</h3>
                     </div>
-                    <div style="width:40px; height:40px; background:#fffbeb; border-radius:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-building" style="color:#d97706; font-size:18px;"></i>
+                    <div style="width:36px; height:36px; background:#fffbeb; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-building" style="color:#d97706; font-size:16px;"></i>
                     </div>
                 </div>
             </div>
@@ -97,78 +95,75 @@
 </div>
 
 {{-- GRÁFICOS LINHA 1 --}}
-<div class="row g-3 mb-3">
+<div class="row g-2 mb-2">
 
     {{-- MUNICÍPIO — PIZZA --}}
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-md-4">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-header border-0 pb-0" style="background:transparent;">
-                <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="card-header border-0 pb-0 pt-2 px-3" style="background:transparent;">
+                <div class="d-flex align-items-center justify-content-between mb-1">
                     <div class="d-flex align-items-center gap-2">
-                        <div style="width:32px; height:32px; background:#fffbeb; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-                            <i class="bi bi-pie-chart-fill" style="color:#d97706;"></i>
+                        <div style="width:26px; height:26px; background:#fffbeb; border-radius:6px; display:flex; align-items:center; justify-content:center;">
+                            <i class="bi bi-pie-chart-fill" style="color:#d97706; font-size:12px;"></i>
                         </div>
-                        <span class="fw-bold" style="font-size:14px;">Distribuição por Município</span>
+                        <span class="fw-bold" style="font-size:13px;">Por Município</span>
                     </div>
-                    <small class="text-muted" style="font-size:11px;">Clica numa fatia para filtrar</small>
+                    <small class="text-muted" style="font-size:10px;">Clica para filtrar</small>
                 </div>
-                <hr class="mt-0">
+                <hr class="mt-1 mb-0">
             </div>
-            <div class="card-body pt-0">
-                <canvas id="graficoMunicipio"></canvas>
+            <div class="card-body p-2">
+                <canvas id="graficoMunicipio" style="max-height:180px;"></canvas>
             </div>
         </div>
     </div>
 
     {{-- CATEGORIA --}}
-    <div class="col-12 col-md-6">
+    <div class="col-12 col-md-4">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-header border-0 pb-0" style="background:transparent;">
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <div style="width:32px; height:32px; background:#f0fdf4; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-bar-chart-fill" style="color:#16a34a;"></i>
+            <div class="card-header border-0 pb-0 pt-2 px-3" style="background:transparent;">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div style="width:26px; height:26px; background:#f0fdf4; border-radius:6px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-bar-chart-fill" style="color:#16a34a; font-size:12px;"></i>
                     </div>
-                    <span class="fw-bold" style="font-size:14px;">Distribuição por Categoria</span>
+                    <span class="fw-bold" style="font-size:13px;">Por Categoria</span>
                 </div>
-                <hr class="mt-0">
+                <hr class="mt-1 mb-0">
             </div>
-            <div class="card-body pt-0">
-                <canvas id="graficoCategoria"></canvas>
+            <div class="card-body p-2">
+                <canvas id="graficoCategoria" style="max-height:180px;"></canvas>
             </div>
         </div>
     </div>
 
-</div>
-
-{{-- GRÁFICO BAIRRO --}}
-<div class="row g-3">
-    <div class="col-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header border-0 pb-0" style="background:transparent;">
-                <div class="d-flex align-items-center justify-content-between mb-2">
+    {{-- BAIRRO --}}
+    <div class="col-12 col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header border-0 pb-0 pt-2 px-3" style="background:transparent;">
+                <div class="d-flex align-items-center justify-content-between mb-1">
                     <div class="d-flex align-items-center gap-2">
-                        <div style="width:32px; height:32px; background:#eff6ff; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-                            <i class="bi bi-bar-chart-fill" style="color:#3b82f6;"></i>
+                        <div style="width:26px; height:26px; background:#eff6ff; border-radius:6px; display:flex; align-items:center; justify-content:center;">
+                            <i class="bi bi-bar-chart-fill" style="color:#3b82f6; font-size:12px;"></i>
                         </div>
-                        <span class="fw-bold" style="font-size:14px;">Distribuição por Bairro</span>
+                        <span class="fw-bold" style="font-size:13px;">Por Bairro</span>
                     </div>
-                    <span class="badge" id="badge-bairros" style="background:#eff6ff; color:#3b82f6; font-size:12px; font-weight:600;">
+                    <span class="badge" id="badge-bairros" style="background:#eff6ff; color:#3b82f6; font-size:11px; font-weight:600;">
                         {{ $porBairro->count() }} bairros
                     </span>
                 </div>
-                <hr class="mt-0">
+                <hr class="mt-1 mb-0">
             </div>
-            <div class="card-body pt-0">
-                <div class="row g-3">
-                    <div class="col-md-8">
-                        <canvas id="graficoBairro" style="max-height:280px;"></canvas>
+            <div class="card-body p-2">
+                <div class="row g-2">
+                    <div class="col-7">
+                        <canvas id="graficoBairro" style="max-height:180px;"></canvas>
                     </div>
-                    <div class="col-md-4">
-                        <div id="lista-bairros" style="max-height:280px; overflow-y:auto;">
+                    <div class="col-5">
+                        <div id="lista-bairros" style="max-height:180px; overflow-y:auto;">
                             @foreach($porBairro as $bairro => $total)
-                            <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid #f1f5f9;">
-                                <span style="font-size:13px; color:#0f172a;">{{ $bairro }}</span>
-                                <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700;">{{ number_format($total, 0, ',', '.') }}</span>
+                            <div class="d-flex justify-content-between align-items-center py-1" style="border-bottom:1px solid #f1f5f9;">
+                                <span style="font-size:11px; color:#0f172a;">{{ $bairro }}</span>
+                                <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700; font-size:10px;">{{ number_format($total, 0, ',', '.') }}</span>
                             </div>
                             @endforeach
                         </div>
@@ -177,6 +172,7 @@
             </div>
         </div>
     </div>
+
 </div>
 
 @endsection
@@ -216,23 +212,22 @@
                 backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899'],
                 borderWidth: 2,
                 borderColor: '#fff',
-                hoverOffset: 8,
+                hoverOffset: 6,
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
-            aspectRatio: 1.6,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: true,
-                    position: 'right',
+                    position: 'bottom',
                     labels: {
-                        font: { size: 12, family: 'Plus Jakarta Sans' },
+                        font: { size: 10, family: 'Plus Jakarta Sans' },
                         color: '#64748b',
-                        padding: 12,
+                        padding: 6,
                         usePointStyle: true,
-                        pointStyleWidth: 8,
+                        pointStyleWidth: 6,
                     }
                 },
                 tooltip: {
@@ -275,10 +270,11 @@
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            layout: { padding: { top: 20 } },
+            layout: { padding: { top: 16 } },
             scales: {
-                x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
+                x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 9 } }, grid: { display: false } },
                 y: { display: false, beginAtZero: true }
             }
         }
@@ -298,10 +294,11 @@
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            layout: { padding: { top: 20 } },
+            layout: { padding: { top: 16 } },
             scales: {
-                x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
+                x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 9 } }, grid: { display: false } },
                 y: { display: false, beginAtZero: true }
             }
         }
@@ -315,33 +312,29 @@
         fetch(url)
             .then(res => res.json())
             .then(data => {
-                // Actualizar cards
-                document.getElementById('card-total').textContent          = formatNum(data.total);
-                document.getElementById('card-masculino').textContent      = formatNum(data.masculino);
-                document.getElementById('card-feminino').textContent       = formatNum(data.feminino);
-                document.getElementById('card-bairros').textContent        = formatNum(data.bairros);
-                document.getElementById('card-masculino-pct').textContent  = pct(data.masculino, data.total);
-                document.getElementById('card-feminino-pct').textContent   = pct(data.feminino, data.total);
-                document.getElementById('badge-bairros').textContent       = formatNum(data.bairros) + ' bairros';
+                document.getElementById('card-total').textContent         = formatNum(data.total);
+                document.getElementById('card-masculino').textContent     = formatNum(data.masculino);
+                document.getElementById('card-feminino').textContent      = formatNum(data.feminino);
+                document.getElementById('card-bairros').textContent       = formatNum(data.bairros);
+                document.getElementById('card-masculino-pct').textContent = pct(data.masculino, data.total);
+                document.getElementById('card-feminino-pct').textContent  = pct(data.feminino, data.total);
+                document.getElementById('badge-bairros').textContent      = formatNum(data.bairros) + ' bairros';
 
-                // Actualizar gráfico categoria
                 graficoCategoria.data.labels = Object.keys(data.porCategoria);
                 graficoCategoria.data.datasets[0].data = Object.values(data.porCategoria);
                 graficoCategoria.update();
 
-                // Actualizar gráfico bairro
                 graficoBairro.data.labels = Object.keys(data.porBairro);
                 graficoBairro.data.datasets[0].data = Object.values(data.porBairro);
                 graficoBairro.update();
 
-                // Actualizar lista de bairros
                 const lista = document.getElementById('lista-bairros');
                 lista.innerHTML = '';
                 Object.entries(data.porBairro).forEach(([bairro, total]) => {
                     lista.innerHTML += `
-                        <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid #f1f5f9;">
-                            <span style="font-size:13px; color:#0f172a;">${bairro}</span>
-                            <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700;">${formatNum(total)}</span>
+                        <div class="d-flex justify-content-between align-items-center py-1" style="border-bottom:1px solid #f1f5f9;">
+                            <span style="font-size:11px; color:#0f172a;">${bairro}</span>
+                            <span class="badge" style="background:#eff6ff; color:#3b82f6; font-weight:700; font-size:10px;">${formatNum(total)}</span>
                         </div>`;
                 });
             });
