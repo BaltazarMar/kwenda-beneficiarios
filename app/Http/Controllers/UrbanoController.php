@@ -75,6 +75,45 @@ class UrbanoController extends Controller
         return view('urbano.index', compact('beneficiarios', 'bairros', 'categorias'));
     }
 
+
+    public function filtros(Request $request)
+{
+    $query = BeneficiarioUrbano::query();
+
+    if ($request->filled('municipio')) {
+        $query->where('municipio', $request->municipio);
+    }
+
+    $total     = $query->count();
+    $masculino = (clone $query)->where('sexo', 'M')->count();
+    $feminino  = (clone $query)->where('sexo', 'F')->count();
+
+    $porBairro = (clone $query)
+        ->selectRaw('bairro, COUNT(*) as total')
+        ->whereNotNull('bairro')
+        ->groupBy('bairro')
+        ->orderByDesc('total')
+        ->pluck('total', 'bairro');
+
+    $porCategoria = (clone $query)
+        ->selectRaw('categoria, COUNT(*) as total')
+        ->whereNotNull('categoria')
+        ->groupBy('categoria')
+        ->orderByDesc('total')
+        ->pluck('total', 'categoria');
+
+    $bairros = (clone $query)->whereNotNull('bairro')->distinct()->count('bairro');
+
+    return response()->json([
+        'total'        => $total,
+        'masculino'    => $masculino,
+        'feminino'     => $feminino,
+        'bairros'      => $bairros,
+        'porBairro'    => $porBairro,
+        'porCategoria' => $porCategoria,
+    ]);
+}
+
     // ================= IMPORTAÇÃO =================
     public function importar(Request $request)
     {

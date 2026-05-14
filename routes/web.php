@@ -117,6 +117,7 @@ Route::prefix('kobo')->name('kobo.')->middleware(['auth'])->group(function () {
     Route::get('/exportar', [KoboSyncController::class, 'exportarExcel'])->name('exportar');
     Route::post('/eliminar-individual', [KoboSyncController::class, 'eliminarIndividual'])->name('eliminar.individual');
     Route::post('/limpar-todos', [KoboSyncController::class, 'limparTodos'])->name('limpar.todos');
+    Route::get('/urbano-filtros', [UrbanoController::class, 'filtros']);
 });
 
 // Kwenda Urbano
