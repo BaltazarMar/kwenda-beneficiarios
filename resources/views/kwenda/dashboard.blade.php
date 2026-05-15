@@ -154,15 +154,15 @@
     </div>
 
     <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm h-100" style="background:#0f172a;">
+        <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <p class="mb-1" style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:#94a3b8;">Total Arrecadado</p>
-                        <h2 class="fw-bold mb-0" id="card-valor" style="color:#ffffff; font-size:20px;">{{ number_format($valorTotal, 0, ',', '.') }} Kz</h2>
+                        <h2 class="fw-bold mb-0" id="card-valor" style="color:#0f172a;; font-size:20px;">{{ number_format($valorTotal, 0, ',', '.') }} Kz</h2>
                     </div>
-                    <div style="width:40px; height:40px; background:rgba(255,255,255,0.1); border-radius:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="bi bi-cash-stack" style="color:#ffffff; font-size:18px;"></i>
+                    <div style="width:40px; height:40px; background:rgba(193, 18, 216, 0.1); border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-cash-stack" style="color:#0f172a;; font-size:18px;"></i>
                     </div>
                 </div>
             </div>
