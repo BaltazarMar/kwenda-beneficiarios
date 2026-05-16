@@ -224,7 +224,9 @@
                         li.addEventListener('mousedown', () => {
                             inputNome.value = nome;
                             fecharLista();
-                            document.getElementById('form-filtro').submit();
+                            setTimeout(() => {
+                                document.getElementById('form-filtro').submit();
+                            }, 50);
                         });
                         lista.appendChild(li);
                     });
@@ -272,7 +274,9 @@
                 e.preventDefault();
                 inputNome.value = active.textContent;
                 fecharLista();
-                document.getElementById('form-filtro').submit();
+                setTimeout(() => {
+                    document.getElementById('form-filtro').submit();
+                }, 50);
             }
         } else if (e.key === 'Escape') {
             fecharLista();

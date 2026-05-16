@@ -32,7 +32,7 @@
                 {{-- CAMPO NOME COM AUTOCOMPLETE --}}
                 <div class="col-12 col-md-3">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Nome</label>
-                    <div class="autocomplete-wrap" style="position:relative;">
+                    <div style="position:relative;">
                         <input
                             type="text"
                             name="nome"
@@ -170,6 +170,7 @@
 
 @push('scripts')
 <script>
+    // ===== AUTOCOMPLETE NOME =====
     const inputNome = document.getElementById('input-nome');
     const lista     = document.getElementById('autocomplete-list');
     let timeoutId   = null;
@@ -181,7 +182,6 @@
 
         if (termo.length < 1) return;
 
-        // Espera 300ms antes de fazer o pedido (evita chamadas a cada tecla)
         timeoutId = setTimeout(() => {
             fetch(`/urbano-beneficiarios/sugestoes?nome=${encodeURIComponent(termo)}`)
                 .then(res => res.json())
@@ -203,8 +203,9 @@
                         li.addEventListener('mousedown', () => {
                             inputNome.value = nome;
                             fecharLista();
-                            // Submete o formulário automaticamente ao escolher
-                            document.getElementById('form-filtro').submit();
+                            setTimeout(() => {
+                                document.getElementById('form-filtro').submit();
+                            }, 50);
                         });
                         lista.appendChild(li);
                     });
@@ -214,12 +215,10 @@
         }, 300);
     });
 
-    // Fecha a lista ao clicar fora
     document.addEventListener('click', function (e) {
         if (!inputNome.contains(e.target)) fecharLista();
     });
 
-    // Navegação com teclado (setas + enter)
     inputNome.addEventListener('keydown', function (e) {
         const items = lista.querySelectorAll('li');
         let active  = lista.querySelector('li.ativo');
@@ -254,7 +253,9 @@
                 e.preventDefault();
                 inputNome.value = active.textContent;
                 fecharLista();
-                document.getElementById('form-filtro').submit();
+                setTimeout(() => {
+                    document.getElementById('form-filtro').submit();
+                }, 50);
             }
         } else if (e.key === 'Escape') {
             fecharLista();
