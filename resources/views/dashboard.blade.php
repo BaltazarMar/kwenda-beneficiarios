@@ -43,8 +43,7 @@
             width: var(--sidebar-width);
             height: 100vh;
             position: fixed;
-            left: 0;
-            top: 0;
+            left: 0; top: 0;
             background: var(--sidebar-bg);
             display: flex;
             flex-direction: column;
@@ -60,22 +59,12 @@
             gap: 12px;
         }
 
-        .sidebar-logo img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-
+        .sidebar-logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; }
         .sidebar-logo-text { line-height: 1.2; }
         .sidebar-logo-text strong { display: block; color: #fff; font-size: 15px; font-weight: 700; }
         .sidebar-logo-text span { color: var(--sidebar-text); font-size: 11px; }
 
-        .sidebar-nav {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px 12px;
-        }
+        .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 12px; }
 
         .nav-section { margin-bottom: 24px; }
 
@@ -175,7 +164,7 @@
             transform: rotate(180deg);
         }
 
-        /* Dropdown */
+        /* Dropdown — vertical: Rural em cima, Urbano em baixo */
         .kwenda-dropdown {
             display: none;
             position: absolute;
@@ -187,7 +176,8 @@
             border-radius: 12px;
             padding: 10px;
             gap: 8px;
-            width: 300px;
+            width: 220px;
+            flex-direction: column;
             box-shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
 
@@ -196,7 +186,6 @@
         }
 
         .kwenda-col {
-            flex: 1;
             background: rgba(255,255,255,0.04);
             border-radius: 8px;
             padding: 10px 12px;
@@ -228,20 +217,11 @@
             transition: background 0.12s, color 0.12s;
         }
 
-        .kwenda-item:hover {
-            background: rgba(255,255,255,0.07);
-            color: #e2e8f0;
-        }
-
+        .kwenda-item:hover { background: rgba(255,255,255,0.07); color: #e2e8f0; }
         .kwenda-item i { font-size: 14px; width: 16px; text-align: center; }
 
         /* ===== MAIN CONTENT ===== */
-        .main {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        .main { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; }
 
         /* ===== TOPBAR ===== */
         .topbar {
@@ -258,25 +238,19 @@
         }
 
         .topbar-title h1 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin: 0; }
-        .topbar-title p { font-size: 12px; color: var(--text-muted); margin: 0; }
-
-        .topbar-user { display: flex; align-items: center; gap: 10px; }
+        .topbar-title p  { font-size: 12px; color: var(--text-muted); margin: 0; }
+        .topbar-user     { display: flex; align-items: center; gap: 10px; }
 
         .user-avatar {
-            width: 36px;
-            height: 36px;
+            width: 36px; height: 36px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 14px; font-weight: 700;
         }
 
         .user-info strong { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); }
-        .user-info span { font-size: 11px; color: var(--text-muted); }
+        .user-info span   { font-size: 11px; color: var(--text-muted); }
 
         /* ===== PAGE CONTENT ===== */
         .page-content { padding: 32px; flex: 1; }
@@ -354,9 +328,7 @@
         .gallery-header {
             padding: 20px 24px 16px;
             border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
         }
 
         .gallery-header h5 { font-size: 15px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px; }
