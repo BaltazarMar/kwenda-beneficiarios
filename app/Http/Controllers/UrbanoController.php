@@ -11,36 +11,37 @@ class UrbanoController extends Controller
 {
     // ================= DASHBOARD =================
     public function dashboard()
-{
-    $total     = BeneficiarioUrbano::count();
-    $masculino = BeneficiarioUrbano::where('sexo', 'M')->count();
-    $feminino  = BeneficiarioUrbano::where('sexo', 'F')->count();
+    {
+        $total     = BeneficiarioUrbano::count();
+        $masculino = BeneficiarioUrbano::where('sexo', 'M')->count();
+        $feminino  = BeneficiarioUrbano::where('sexo', 'F')->count();
 
-    $porBairro = BeneficiarioUrbano::selectRaw('bairro, COUNT(*) as total')
-        ->whereNotNull('bairro')
-        ->groupBy('bairro')
-        ->orderByDesc('total')
-        ->pluck('total', 'bairro');
+        $porBairro = BeneficiarioUrbano::selectRaw('bairro, COUNT(*) as total')
+            ->whereNotNull('bairro')
+            ->groupBy('bairro')
+            ->orderByDesc('total')
+            ->pluck('total', 'bairro');
 
-    $porCategoria = BeneficiarioUrbano::selectRaw('categoria, COUNT(*) as total')
-        ->whereNotNull('categoria')
-        ->groupBy('categoria')
-        ->orderByDesc('total')
-        ->pluck('total', 'categoria');
+        $porCategoria = BeneficiarioUrbano::selectRaw('categoria, COUNT(*) as total')
+            ->whereNotNull('categoria')
+            ->groupBy('categoria')
+            ->orderByDesc('total')
+            ->pluck('total', 'categoria');
 
-    $porMunicipio = BeneficiarioUrbano::selectRaw('municipio, COUNT(*) as total')
-        ->whereNotNull('municipio')
-        ->groupBy('municipio')
-        ->orderByDesc('total')
-        ->pluck('total', 'municipio');
+        $porMunicipio = BeneficiarioUrbano::selectRaw('municipio, COUNT(*) as total')
+            ->whereNotNull('municipio')
+            ->groupBy('municipio')
+            ->orderByDesc('total')
+            ->pluck('total', 'municipio');
 
-    $bairros = BeneficiarioUrbano::whereNotNull('bairro')->distinct()->count('bairro');
+        $bairros = BeneficiarioUrbano::whereNotNull('bairro')->distinct()->count('bairro');
 
-    return view('urbano.dashboard', compact(
-        'total', 'masculino', 'feminino',
-        'porBairro', 'porCategoria', 'porMunicipio', 'bairros'
-    ));
-}
+        return view('urbano.dashboard', compact(
+            'total', 'masculino', 'feminino',
+            'porBairro', 'porCategoria', 'porMunicipio', 'bairros'
+        ));
+    }
+
     // ================= LISTAGEM =================
     public function index(Request $request)
     {
@@ -75,46 +76,63 @@ class UrbanoController extends Controller
         return view('urbano.index', compact('beneficiarios', 'bairros', 'categorias'));
     }
 
+    // ================= AUTOCOMPLETE DE NOMES =================
+    public function sugestoes(Request $request)
+    {
+        $termo = $request->get('nome', '');
 
-    public function filtros(Request $request)
-{
-    $query = BeneficiarioUrbano::query();
+        if (strlen($termo) < 1) {
+            return response()->json([]);
+        }
 
-    if ($request->filled('municipio')) {
-        $query->where('municipio', $request->municipio);
+        $nomes = BeneficiarioUrbano::where('nome', 'like', $termo . '%')
+            ->orderBy('nome')
+            ->limit(10)
+            ->pluck('nome');
+
+        return response()->json($nomes);
     }
 
-    $total     = $query->count();
-    $masculino = (clone $query)->where('sexo', 'M')->count();
-    $feminino  = (clone $query)->where('sexo', 'F')->count();
+    // ================= FILTROS DASHBOARD =================
+    public function filtros(Request $request)
+    {
+        $query = BeneficiarioUrbano::query();
 
-    $porBairro = (clone $query)
-        ->selectRaw('bairro, COUNT(*) as total')
-        ->whereNotNull('bairro')
-        ->groupBy('bairro')
-        ->orderByDesc('total')
-        ->pluck('total', 'bairro');
+        if ($request->filled('municipio')) {
+            $query->where('municipio', $request->municipio);
+        }
 
-    $porCategoria = (clone $query)
-        ->selectRaw('categoria, COUNT(*) as total')
-        ->whereNotNull('categoria')
-        ->groupBy('categoria')
-        ->orderByDesc('total')
-        ->pluck('total', 'categoria');
+        $total     = $query->count();
+        $masculino = (clone $query)->where('sexo', 'M')->count();
+        $feminino  = (clone $query)->where('sexo', 'F')->count();
 
-    $bairros = (clone $query)->whereNotNull('bairro')->distinct()->count('bairro');
+        $porBairro = (clone $query)
+            ->selectRaw('bairro, COUNT(*) as total')
+            ->whereNotNull('bairro')
+            ->groupBy('bairro')
+            ->orderByDesc('total')
+            ->pluck('total', 'bairro');
 
-    return response()->json([
-        'total'        => $total,
-        'masculino'    => $masculino,
-        'feminino'     => $feminino,
-        'bairros'      => $bairros,
-        'porBairro'    => $porBairro,
-        'porCategoria' => $porCategoria,
-    ]);
-}
+        $porCategoria = (clone $query)
+            ->selectRaw('categoria, COUNT(*) as total')
+            ->whereNotNull('categoria')
+            ->groupBy('categoria')
+            ->orderByDesc('total')
+            ->pluck('total', 'categoria');
 
-    // ================= IMPORTAÇÃO =================
+        $bairros = (clone $query)->whereNotNull('bairro')->distinct()->count('bairro');
+
+        return response()->json([
+            'total'        => $total,
+            'masculino'    => $masculino,
+            'feminino'     => $feminino,
+            'bairros'      => $bairros,
+            'porBairro'    => $porBairro,
+            'porCategoria' => $porCategoria,
+        ]);
+    }
+
+    // ================= IMPORTACAO =================
     public function importar(Request $request)
     {
         set_time_limit(0);
@@ -126,7 +144,7 @@ class UrbanoController extends Controller
 
         try {
             Excel::import($import, $request->file('file'));
-            return back()->with('success', 'Importação concluída com sucesso!');
+            return back()->with('success', 'Importacao concluida com sucesso!');
         } catch (\Exception $e) {
             return back()->with('error', 'Erro ao importar: ' . $e->getMessage());
         }

@@ -107,25 +107,25 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-
-
 Route::prefix('kobo')->name('kobo.')->middleware(['auth'])->group(function () {
-    Route::get('/sync',      [KoboSyncController::class, 'index'])             ->name('sync');
-    Route::post('/importar', [KoboSyncController::class, 'importar'])          ->name('importar');
-    Route::get('/json',      [KoboSyncController::class, 'json'])              ->name('json');
-    Route::post('/eliminar', [KoboSyncController::class, 'eliminarDuplicados'])->name('eliminar');
-    Route::get('/exportar', [KoboSyncController::class, 'exportarExcel'])->name('exportar');
+    Route::get('/sync',      [KoboSyncController::class, 'index'])              ->name('sync');
+    Route::post('/importar', [KoboSyncController::class, 'importar'])           ->name('importar');
+    Route::get('/json',      [KoboSyncController::class, 'json'])               ->name('json');
+    Route::post('/eliminar', [KoboSyncController::class, 'eliminarDuplicados']) ->name('eliminar');
+    Route::get('/exportar',  [KoboSyncController::class, 'exportarExcel'])      ->name('exportar');
     Route::post('/eliminar-individual', [KoboSyncController::class, 'eliminarIndividual'])->name('eliminar.individual');
-    Route::post('/limpar-todos', [KoboSyncController::class, 'limparTodos'])->name('limpar.todos');
+    Route::post('/limpar-todos', [KoboSyncController::class, 'limparTodos'])    ->name('limpar.todos');
     Route::get('/urbano-filtros', [UrbanoController::class, 'filtros']);
 });
 
-// Kwenda Urbano
-Route::get('/urbano-dashboard', [UrbanoController::class, 'dashboard']);
+// ================= KWENDA URBANO =================
+// IMPORTANTE: a rota de sugestões tem de estar ANTES da rota principal
+Route::get('/urbano-beneficiarios/sugestoes', [UrbanoController::class, 'sugestoes']);
 Route::get('/urbano-beneficiarios', [UrbanoController::class, 'index']);
 Route::post('/urbano-importar', [UrbanoController::class, 'importar']);
 Route::get('/urbano-importar', function () {
     return view('urbano.importar');
 });
+Route::get('/urbano-dashboard', [UrbanoController::class, 'dashboard']);
 
 require __DIR__.'/auth.php';

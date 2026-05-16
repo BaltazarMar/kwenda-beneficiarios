@@ -26,12 +26,43 @@
 {{-- FILTROS --}}
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
-        <form method="GET" action="{{ url('/urbano-beneficiarios') }}">
+        <form method="GET" action="{{ url('/urbano-beneficiarios') }}" id="form-filtro">
             <div class="row g-2 align-items-end">
+
+                {{-- CAMPO NOME COM AUTOCOMPLETE --}}
                 <div class="col-12 col-md-3">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Nome</label>
-                    <input type="text" name="nome" class="form-control form-control-sm" placeholder="Pesquisar por nome..." value="{{ request('nome') }}">
+                    <div class="autocomplete-wrap" style="position:relative;">
+                        <input
+                            type="text"
+                            name="nome"
+                            id="input-nome"
+                            class="form-control form-control-sm"
+                            placeholder="Pesquisar por nome..."
+                            value="{{ request('nome') }}"
+                            autocomplete="off"
+                        >
+                        <ul id="autocomplete-list" style="
+                            display:none;
+                            position:absolute;
+                            top:100%;
+                            left:0;
+                            right:0;
+                            z-index:1000;
+                            background:#fff;
+                            border:1px solid #e2e8f0;
+                            border-top:none;
+                            border-radius:0 0 8px 8px;
+                            max-height:220px;
+                            overflow-y:auto;
+                            list-style:none;
+                            margin:0;
+                            padding:4px 0;
+                            box-shadow:0 4px 12px rgba(0,0,0,0.08);
+                        "></ul>
+                    </div>
                 </div>
+
                 <div class="col-6 col-md-2">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Identificador</label>
                     <input type="text" name="identificador" class="form-control form-control-sm" placeholder="ID" value="{{ request('identificador') }}">
@@ -136,3 +167,103 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    const inputNome = document.getElementById('input-nome');
+    const lista     = document.getElementById('autocomplete-list');
+    let timeoutId   = null;
+
+    inputNome.addEventListener('input', function () {
+        const termo = this.value.trim();
+        clearTimeout(timeoutId);
+        fecharLista();
+
+        if (termo.length < 1) return;
+
+        // Espera 300ms antes de fazer o pedido (evita chamadas a cada tecla)
+        timeoutId = setTimeout(() => {
+            fetch(`/urbano-beneficiarios/sugestoes?nome=${encodeURIComponent(termo)}`)
+                .then(res => res.json())
+                .then(nomes => {
+                    if (!nomes.length) return;
+
+                    nomes.forEach(nome => {
+                        const li = document.createElement('li');
+                        li.textContent = nome;
+                        li.style.cssText = `
+                            padding: 8px 14px;
+                            cursor: pointer;
+                            font-size: 13px;
+                            color: #0f172a;
+                            transition: background 0.1s;
+                        `;
+                        li.addEventListener('mouseenter', () => li.style.background = '#f1f5f9');
+                        li.addEventListener('mouseleave', () => li.style.background = '');
+                        li.addEventListener('mousedown', () => {
+                            inputNome.value = nome;
+                            fecharLista();
+                            // Submete o formulário automaticamente ao escolher
+                            document.getElementById('form-filtro').submit();
+                        });
+                        lista.appendChild(li);
+                    });
+
+                    lista.style.display = 'block';
+                });
+        }, 300);
+    });
+
+    // Fecha a lista ao clicar fora
+    document.addEventListener('click', function (e) {
+        if (!inputNome.contains(e.target)) fecharLista();
+    });
+
+    // Navegação com teclado (setas + enter)
+    inputNome.addEventListener('keydown', function (e) {
+        const items = lista.querySelectorAll('li');
+        let active  = lista.querySelector('li.ativo');
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (!active) {
+                items[0]?.classList.add('ativo');
+                items[0] && (items[0].style.background = '#f1f5f9');
+            } else {
+                const next = active.nextElementSibling;
+                if (next) {
+                    active.classList.remove('ativo');
+                    active.style.background = '';
+                    next.classList.add('ativo');
+                    next.style.background = '#f1f5f9';
+                }
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (active) {
+                const prev = active.previousElementSibling;
+                active.classList.remove('ativo');
+                active.style.background = '';
+                if (prev) {
+                    prev.classList.add('ativo');
+                    prev.style.background = '#f1f5f9';
+                }
+            }
+        } else if (e.key === 'Enter') {
+            if (active) {
+                e.preventDefault();
+                inputNome.value = active.textContent;
+                fecharLista();
+                document.getElementById('form-filtro').submit();
+            }
+        } else if (e.key === 'Escape') {
+            fecharLista();
+        }
+    });
+
+    function fecharLista() {
+        lista.innerHTML = '';
+        lista.style.display = 'none';
+    }
+</script>
+@endpush
