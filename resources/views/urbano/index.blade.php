@@ -69,7 +69,7 @@
                 </div>
                 <div class="col-6 col-md-2">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Bairro</label>
-                    <select name="bairro" class="form-select form-select-sm">
+                    <select name="bairro" id="select-bairro" class="form-select form-select-sm">
                         <option value="">Todos os bairros</option>
                         @foreach($bairros as $bairro)
                             <option value="{{ $bairro }}" {{ request('bairro') == $bairro ? 'selected' : '' }}>{{ $bairro }}</option>
@@ -78,7 +78,7 @@
                 </div>
                 <div class="col-6 col-md-2">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Categoria</label>
-                    <select name="categoria" class="form-select form-select-sm">
+                    <select name="categoria" id="select-categoria" class="form-select form-select-sm">
                         <option value="">Todas</option>
                         @foreach($categorias as $cat)
                             <option value="{{ $cat }}" {{ request('categoria') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
@@ -87,7 +87,7 @@
                 </div>
                 <div class="col-6 col-md-1">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Sexo</label>
-                    <select name="sexo" class="form-select form-select-sm">
+                    <select name="sexo" id="select-sexo" class="form-select form-select-sm">
                         <option value="">Todos</option>
                         <option value="M" {{ request('sexo') == 'M' ? 'selected' : '' }}>M</option>
                         <option value="F" {{ request('sexo') == 'F' ? 'selected' : '' }}>F</option>
@@ -170,7 +170,6 @@
 
 @push('scripts')
 <script>
-    // ===== AUTOCOMPLETE NOME =====
     const inputNome = document.getElementById('input-nome');
     const lista     = document.getElementById('autocomplete-list');
     let timeoutId   = null;
@@ -183,9 +182,15 @@
         if (termo.length < 1) return;
 
         timeoutId = setTimeout(() => {
-            fetch(`/urbano-beneficiarios/sugestoes?nome=${encodeURIComponent(termo)}`)
+            // Envia os filtros activos junto com o nome
+            const form    = document.getElementById('form-filtro');
+            const filtros = new URLSearchParams(new FormData(form));
+            filtros.set('nome', termo);
+
+            fetch(`/urbano-beneficiarios/sugestoes?${filtros.toString()}`)
                 .then(res => res.json())
                 .then(nomes => {
+                    fecharLista();
                     if (!nomes.length) return;
 
                     nomes.forEach(nome => {

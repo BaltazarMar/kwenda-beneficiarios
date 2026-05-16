@@ -76,7 +76,7 @@ class UrbanoController extends Controller
         return view('urbano.index', compact('beneficiarios', 'bairros', 'categorias'));
     }
 
-    // ================= AUTOCOMPLETE DE NOMES =================
+    // ================= AUTOCOMPLETE — respeita filtros activos =================
     public function sugestoes(Request $request)
     {
         $termo = $request->get('nome', '');
@@ -85,10 +85,13 @@ class UrbanoController extends Controller
             return response()->json([]);
         }
 
-        $nomes = BeneficiarioUrbano::where('nome', 'like', $termo . '%')
-            ->orderBy('nome')
-            ->limit(10)
-            ->pluck('nome');
+        $query = BeneficiarioUrbano::where('nome', 'like', $termo . '%');
+
+        if ($request->filled('bairro'))    $query->where('bairro', $request->bairro);
+        if ($request->filled('categoria')) $query->where('categoria', $request->categoria);
+        if ($request->filled('sexo'))      $query->where('sexo', $request->sexo);
+
+        $nomes = $query->orderBy('nome')->limit(10)->pluck('nome');
 
         return response()->json($nomes);
     }

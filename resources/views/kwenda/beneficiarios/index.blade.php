@@ -191,7 +191,6 @@
 
 @push('scripts')
 <script>
-    // ===== AUTOCOMPLETE NOME =====
     const inputNome = document.getElementById('input-nome');
     const lista     = document.getElementById('autocomplete-list');
     let timeoutId   = null;
@@ -204,9 +203,15 @@
         if (termo.length < 1) return;
 
         timeoutId = setTimeout(() => {
-            fetch(`/beneficiarios/sugestoes?nome=${encodeURIComponent(termo)}`)
+            // Envia os filtros activos junto com o nome
+            const form    = document.getElementById('form-filtro');
+            const filtros = new URLSearchParams(new FormData(form));
+            filtros.set('nome', termo);
+
+            fetch(`/beneficiarios/sugestoes?${filtros.toString()}`)
                 .then(res => res.json())
                 .then(nomes => {
+                    fecharLista();
                     if (!nomes.length) return;
 
                     nomes.forEach(nome => {

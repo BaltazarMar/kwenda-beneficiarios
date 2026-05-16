@@ -56,7 +56,7 @@ class BeneficiarioController extends Controller
         return view('kwenda.beneficiarios.index', compact('beneficiarios', 'municipios', 'bairros'));
     }
 
-    // ================= AUTOCOMPLETE DE NOMES =================
+    // ================= AUTOCOMPLETE — respeita filtros activos =================
     public function sugestoes(Request $request)
     {
         $termo = $request->get('nome', '');
@@ -65,10 +65,14 @@ class BeneficiarioController extends Controller
             return response()->json([]);
         }
 
-        $nomes = Beneficiario::where('nome', 'like', $termo . '%')
-            ->orderBy('nome')
-            ->limit(10)
-            ->pluck('nome');
+        $query = Beneficiario::where('nome', 'like', $termo . '%');
+
+        if ($request->filled('municipio')) $query->where('municipio', $request->municipio);
+        if ($request->filled('bairro'))    $query->where('bairro', $request->bairro);
+        if ($request->filled('pago'))      $query->where('pago', $request->pago);
+        if ($request->filled('sexo'))      $query->where('sexo', $request->sexo);
+
+        $nomes = $query->orderBy('nome')->limit(10)->pluck('nome');
 
         return response()->json($nomes);
     }
