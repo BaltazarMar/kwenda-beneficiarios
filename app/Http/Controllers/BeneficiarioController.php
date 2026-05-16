@@ -56,6 +56,24 @@ class BeneficiarioController extends Controller
         return view('kwenda.beneficiarios.index', compact('beneficiarios', 'municipios', 'bairros'));
     }
 
+    // ================= AUTOCOMPLETE DE NOMES =================
+    public function sugestoes(Request $request)
+    {
+        $termo = $request->get('nome', '');
+
+        if (strlen($termo) < 1) {
+            return response()->json([]);
+        }
+
+        $nomes = Beneficiario::where('nome', 'like', $termo . '%')
+            ->orderBy('nome')
+            ->limit(10)
+            ->pluck('nome');
+
+        return response()->json($nomes);
+    }
+
+    // ================= BAIRROS POR MUNICÍPIO =================
     public function bairrosPorMunicipio(Request $request)
     {
         $municipio = $request->municipio;
@@ -155,7 +173,6 @@ class BeneficiarioController extends Controller
         $municipio = $request->municipio;
         $ano       = $request->ano;
 
-        // Query base — só por município
         $queryBase = Beneficiario::query();
         if ($municipio) {
             $queryBase->where('municipio', $municipio);
@@ -170,7 +187,6 @@ class BeneficiarioController extends Controller
         $valorTotal = (clone $queryBase)->selectRaw('SUM(rec1+rec2+rec3+rec4+rec5+rec6) as total')->value('total');
         $bairros    = (clone $queryBase)->whereNotNull('bairro')->distinct('bairro')->count('bairro');
 
-        // Gráfico municípios — filtra por ano se seleccionado
         $queryMunicipio = Beneficiario::query();
         if ($municipio) {
             $queryMunicipio->where('municipio', $municipio);
@@ -223,7 +239,6 @@ class BeneficiarioController extends Controller
             $recorrencias['Rec ' . $i] = $q->count();
         }
 
-        // Anos disponíveis
         $anos = [];
         for ($i = 1; $i <= 6; $i++) {
             $anosDaRec = Beneficiario::selectRaw('YEAR(data' . $i . ') as ano')

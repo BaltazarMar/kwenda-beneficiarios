@@ -49,10 +49,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kwenda-dashboard', [BeneficiarioController::class, 'dashboard']);
         Route::get('/dashboard-filtros', [BeneficiarioController::class, 'dashboardFiltros'])->name('dashboard.filtros');
         Route::get('/dashboard-recorrencias', [BeneficiarioController::class, 'recorrenciasMunicipio'])->name('dashboard.recorrencias');
+
+        // IMPORTANTE: sugestoes e exportar ANTES de /{beneficiario}
+        Route::get('/beneficiarios/sugestoes', [BeneficiarioController::class, 'sugestoes']);
+        Route::get('/beneficiarios/exportar', [BeneficiarioController::class, 'exportar'])->name('beneficiarios.exportar');
         Route::get('/beneficiarios', [BeneficiarioController::class, 'index'])->name('beneficiarios.index');
         Route::get('/beneficiarios/{beneficiario}', [BeneficiarioController::class, 'show'])->name('beneficiarios.show');
         Route::get('/bairros-por-municipio', [BeneficiarioController::class, 'bairrosPorMunicipio'])->name('bairros.por.municipio');
-        Route::get('/beneficiarios/exportar', [BeneficiarioController::class, 'exportar'])->name('beneficiarios.exportar');
     });
 
     // Beneficiários editar — director, assistente_dados
@@ -119,7 +122,7 @@ Route::prefix('kobo')->name('kobo.')->middleware(['auth'])->group(function () {
 });
 
 // ================= KWENDA URBANO =================
-// IMPORTANTE: a rota de sugestões tem de estar ANTES da rota principal
+// IMPORTANTE: sugestoes ANTES da rota principal
 Route::get('/urbano-beneficiarios/sugestoes', [UrbanoController::class, 'sugestoes']);
 Route::get('/urbano-beneficiarios', [UrbanoController::class, 'index']);
 Route::post('/urbano-importar', [UrbanoController::class, 'importar']);
