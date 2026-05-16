@@ -44,17 +44,10 @@
             transition: transform 0.3s ease;
         }
 
-        /* Mobile — esconde sidebar por defeito */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main {
-                margin-left: 0 !important;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0 !important; }
             .overlay {
                 display: none;
                 position: fixed;
@@ -62,21 +55,18 @@
                 background: rgba(0,0,0,0.5);
                 z-index: 199;
             }
-            .overlay.open {
-                display: block;
-            }
+            .overlay.open { display: block; }
         }
 
         .sidebar-logo {
             padding: 24px 20px 20px;
             border-bottom: 1px solid rgba(255,255,255,0.06);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 12px;
         }
         .sidebar-logo img { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; }
         .sidebar-logo-text strong { display: block; color: #fff; font-size: 15px; font-weight: 700; }
         .sidebar-logo-text span { color: var(--sidebar-text); font-size: 11px; }
+
         .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 12px; }
         .nav-section { margin-bottom: 24px; }
         .nav-section-title {
@@ -94,14 +84,115 @@
         .nav-link:hover i { opacity: 1; }
         .nav-link.active { background: var(--sidebar-active); color: var(--accent); }
         .nav-link.active i { opacity: 1; color: var(--accent); }
+
         .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.06); }
         .btn-sair {
             display: flex; align-items: center; gap: 10px; width: 100%;
             padding: 10px 12px; border-radius: 8px;
             background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2);
-            color: #f87171; font-size: 13.5px; font-weight: 600; text-decoration: none; transition: all 0.15s;
+            color: #f87171; font-size: 13.5px; font-weight: 600;
+            text-decoration: none; transition: all 0.15s;
         }
         .btn-sair:hover { background: rgba(239,68,68,0.2); color: #fca5a5; }
+
+        /* ===== BOTÃO KWENDA INFO ===== */
+        .kwenda-info-wrap {
+            position: relative;
+            width: 100%;
+            margin-bottom: 2px;
+        }
+
+        .kwenda-info-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 9px 10px;
+            border-radius: 8px;
+            background: rgba(59,130,246,0.08);
+            border: 1px solid rgba(59,130,246,0.18);
+            color: #93c5fd;
+            font-size: 13.5px;
+            font-weight: 500;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: left;
+        }
+
+        .kwenda-info-btn i { font-size: 16px; width: 20px; text-align: center; }
+
+        .kwenda-info-btn .chevron {
+            margin-left: auto;
+            font-size: 12px;
+            transition: transform 0.2s;
+            opacity: 0.6;
+        }
+
+        .kwenda-info-wrap:hover .kwenda-info-btn {
+            background: rgba(59,130,246,0.15);
+            color: #bfdbfe;
+        }
+
+        .kwenda-info-wrap:hover .chevron {
+            transform: rotate(180deg);
+        }
+
+        /* Dropdown — vertical: Rural em cima, Urbano em baixo */
+        .kwenda-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            z-index: 999;
+            background: #0f172a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 10px;
+            gap: 8px;
+            width: 220px;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .kwenda-info-wrap:hover .kwenda-dropdown {
+            display: flex;
+        }
+
+        .kwenda-col {
+            background: rgba(255,255,255,0.04);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .kwenda-col-title {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .kwenda-col-title.rural  { color: #86efac; }
+        .kwenda-col-title.urbano { color: #93c5fd; }
+
+        .kwenda-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: background 0.12s, color 0.12s;
+        }
+
+        .kwenda-item:hover { background: rgba(255,255,255,0.07); color: #e2e8f0; }
+        .kwenda-item i { font-size: 14px; width: 16px; text-align: center; }
 
         /* ===== MAIN ===== */
         .main { margin-left: var(--sidebar-width); min-height: 100vh; display: flex; flex-direction: column; }
@@ -114,17 +205,20 @@
         }
         .topbar h1 { font-size: 18px; font-weight: 700; margin: 0; }
 
-        /* Botão hambúrguer — só no mobile */
         .btn-hamburguer {
             display: none;
             background: none; border: none; cursor: pointer;
             color: var(--text-primary); font-size: 22px; padding: 4px;
         }
+
         @media (max-width: 768px) {
             .btn-hamburguer { display: flex; align-items: center; }
             .topbar { padding: 0 16px; }
             .topbar h1 { font-size: 15px; }
             .page-content { padding: 16px; }
+            .user-info { display: none; }
+            /* No mobile o dropdown abre para a direita para não sair do ecrã */
+            .kwenda-dropdown { left: 0; right: auto; width: 200px; }
         }
 
         .user-avatar {
@@ -135,10 +229,6 @@
         }
         .user-info strong { display: block; font-size: 13px; font-weight: 600; }
         .user-info span { font-size: 11px; color: var(--text-muted); }
-
-        @media (max-width: 768px) {
-            .user-info { display: none; }
-        }
 
         .page-content { padding: 32px; flex: 1; }
     </style>
@@ -191,25 +281,53 @@
             </a>
         </div>
 
+        {{-- ===== BOTÃO: INFORMAÇÃO SOBRE O KWENDA ===== --}}
         <div class="nav-section">
-            <div class="nav-section-title">Kwenda Rural</div>
-            <a href="{{ url('/kwenda-dashboard') }}" class="nav-link {{ request()->is('kwenda-dashboard*') ? 'active' : '' }}" onclick="fecharSidebar()">
-                <i class="bi bi-bar-chart-fill"></i> Dashboard Rural
-            </a>
-            <a href="{{ url('/beneficiarios') }}" class="nav-link {{ request()->is('beneficiarios*') ? 'active' : '' }}" onclick="fecharSidebar()">
-                <i class="bi bi-list-ul"></i> Beneficiários Rurais
-            </a>
-        </div>
+            <div class="nav-section-title">Kwenda</div>
 
-        <div class="nav-section">
-            <div class="nav-section-title">Kwenda Urbano</div>
-            <a href="{{ url('/urbano-dashboard') }}" class="nav-link {{ request()->is('urbano-dashboard*') ? 'active' : '' }}" onclick="fecharSidebar()">
-                <i class="bi bi-buildings-fill"></i> Dashboard Urbano
-            </a>
-            <a href="{{ url('/urbano-beneficiarios') }}" class="nav-link {{ request()->is('urbano-beneficiarios*') ? 'active' : '' }}" onclick="fecharSidebar()">
-                <i class="bi bi-list-ul"></i> Beneficiários Urbanos
-            </a>
+            <div class="kwenda-info-wrap">
+                <button class="kwenda-info-btn">
+                    <i class="bi bi-info-circle-fill"></i>
+                    Informação sobre o Kwenda
+                    <i class="bi bi-chevron-down chevron"></i>
+                </button>
+
+                <div class="kwenda-dropdown">
+                    {{-- Kwenda Rural --}}
+                    <div class="kwenda-col">
+                        <div class="kwenda-col-title rural">
+                            <i class="bi bi-tree-fill"></i> Kwenda Rural
+                        </div>
+                        <a href="{{ url('/kwenda-dashboard') }}" class="kwenda-item" onclick="fecharSidebar()">
+                            <i class="bi bi-bar-chart-fill"></i> Dashboard
+                        </a>
+                        <a href="{{ url('/beneficiarios') }}" class="kwenda-item" onclick="fecharSidebar()">
+                            <i class="bi bi-list-ul"></i> Lista
+                        </a>
+                        <a href="{{ url('/importar') }}" class="kwenda-item" onclick="fecharSidebar()">
+                            <i class="bi bi-upload"></i> Importação
+                        </a>
+                    </div>
+
+                    {{-- Kwenda Urbano --}}
+                    <div class="kwenda-col">
+                        <div class="kwenda-col-title urbano">
+                            <i class="bi bi-buildings-fill"></i> Kwenda Urbano
+                        </div>
+                        <a href="{{ url('/urbano-dashboard') }}" class="kwenda-item" onclick="fecharSidebar()">
+                            <i class="bi bi-bar-chart-fill"></i> Dashboard
+                        </a>
+                        <a href="{{ url('/urbano-beneficiarios') }}" class="kwenda-item" onclick="fecharSidebar()">
+                            <i class="bi bi-list-ul"></i> Lista
+                        </a>
+                        <a href="{{ url('/urbano-importar') }}" class="kwenda-item" onclick="fecharSidebar()">
+                            <i class="bi bi-upload"></i> Importação
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
+        {{-- ===== FIM BOTÃO KWENDA ===== --}}
 
         <div class="nav-section">
             <div class="nav-section-title">Relatórios</div>
@@ -230,7 +348,6 @@
 <div class="main">
     <div class="topbar">
         <div class="d-flex align-items-center gap-3">
-            <!-- Hambúrguer -->
             <button class="btn-hamburguer" onclick="abrirSidebar()">
                 <i class="bi bi-list"></i>
             </button>
