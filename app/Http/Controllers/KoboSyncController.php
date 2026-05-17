@@ -21,58 +21,59 @@ class KoboSyncController extends Controller
     /**
      * Página de sincronização — mostra os dados do KoBoToolbox
      */
-  public function index()
-{
-    $submissions = $this->kobo->getFormattedSubmissions();
-    $total       = count($submissions);
+    public function index()
+    {
+        $submissions = $this->kobo->getFormattedSubmissions();
+        $total       = count($submissions);
 
-    // Agrupa por Nome + Data para detectar duplicados dentro das submissões
-    $contagemNomeData = collect($submissions)
-        ->groupBy(fn($sub) => strtolower(trim($sub['nome'] ?? '')) . '|' . ($sub['data_nascimento'] ?? ''))
-        ->map(fn($grupo) => count($grupo));
+        // Agrupa por Nome + Data para detectar duplicados dentro das submissões
+        $contagemNomeData = collect($submissions)
+            ->groupBy(fn($sub) => strtolower(trim($sub['nome'] ?? '')) . '|' . ($sub['data_nascimento'] ?? ''))
+            ->map(fn($grupo) => count($grupo));
 
-    // Agrupa apenas por Nome para detectar possíveis duplicados
-    $contagemNome = collect($submissions)
-        ->groupBy(fn($sub) => strtolower(trim($sub['nome'] ?? '')))
-        ->map(fn($grupo) => count($grupo));
+        // Agrupa apenas por Nome para detectar possíveis duplicados
+        $contagemNome = collect($submissions)
+            ->groupBy(fn($sub) => strtolower(trim($sub['nome'] ?? '')))
+            ->map(fn($grupo) => count($grupo));
 
-    $submissionsComStatus = collect($submissions)->map(function ($sub) use ($contagemNomeData, $contagemNome) {
+        $submissionsComStatus = collect($submissions)->map(function ($sub) use ($contagemNomeData, $contagemNome) {
 
-        // Verifica duplicado confirmado na base de dados
-        $statusBD = $this->verificarDuplicado($sub);
-        if ($statusBD === 'duplicado') {
-            return array_merge($sub, ['status' => 'duplicado']);
-        }
+            // Verifica duplicado confirmado na base de dados
+            $statusBD = $this->verificarDuplicado($sub);
+            if ($statusBD === 'duplicado') {
+                return array_merge($sub, ['status' => 'duplicado']);
+            }
 
-        // Chave Nome + Data
-        $chaveNomeData = strtolower(trim($sub['nome'] ?? '')) . '|' . ($sub['data_nascimento'] ?? '');
+            // Chave Nome + Data
+            $chaveNomeData = strtolower(trim($sub['nome'] ?? '')) . '|' . ($sub['data_nascimento'] ?? '');
 
-        // Se o mesmo Nome + Data aparece mais de uma vez nas submissões → Duplicado
-        if ($contagemNomeData->get($chaveNomeData, 0) > 1) {
-            return array_merge($sub, ['status' => 'duplicado']);
-        }
+            // Se o mesmo Nome + Data aparece mais de uma vez nas submissões → Duplicado
+            if ($contagemNomeData->get($chaveNomeData, 0) > 1) {
+                return array_merge($sub, ['status' => 'duplicado']);
+            }
 
-        // Se apenas o Nome aparece mais de uma vez (datas diferentes) → Possível
-        $chaveNome = strtolower(trim($sub['nome'] ?? ''));
-        if ($contagemNome->get($chaveNome, 0) > 1) {
-            return array_merge($sub, ['status' => 'possivel']);
-        }
+            // Se apenas o Nome aparece mais de uma vez (datas diferentes) → Possível
+            $chaveNome = strtolower(trim($sub['nome'] ?? ''));
+            if ($contagemNome->get($chaveNome, 0) > 1) {
+                return array_merge($sub, ['status' => 'possivel']);
+            }
 
-        return array_merge($sub, ['status' => 'novo']);
-    })->toArray();
+            return array_merge($sub, ['status' => 'novo']);
+        })->toArray();
 
-    $novos      = collect($submissionsComStatus)->where('status', 'novo')->count();
-    $duplicados = collect($submissionsComStatus)->where('status', 'duplicado')->count();
-    $possiveis  = collect($submissionsComStatus)->where('status', 'possivel')->count();
+        $novos      = collect($submissionsComStatus)->where('status', 'novo')->count();
+        $duplicados = collect($submissionsComStatus)->where('status', 'duplicado')->count();
+        $possiveis  = collect($submissionsComStatus)->where('status', 'possivel')->count();
 
-    return view('kobo.sync', compact(
-        'submissionsComStatus',
-        'total',
-        'novos',
-        'duplicados',
-        'possiveis'
-    ));
-}
+        return view('kobo.sync', compact(
+            'submissionsComStatus',
+            'total',
+            'novos',
+            'duplicados',
+            'possiveis'
+        ));
+    }
+
     /**
      * Importa apenas os beneficiários novos (sem duplicados)
      */
@@ -133,7 +134,7 @@ class KoboSyncController extends Controller
      */
     public function eliminarDuplicados(Request $request)
     {
-        $tipo        = $request->input('tipo', 'duplicado'); // 'duplicado', 'possivel', 'ambos'
+        $tipo        = $request->input('tipo', 'duplicado');
         $submissions = $this->kobo->getFormattedSubmissions();
         $eliminados  = 0;
         $erros       = 0;
@@ -206,46 +207,60 @@ class KoboSyncController extends Controller
     }
 
     /**
-     * Verifica duplicados em 3 níveis
+     * Exporta as submissões do KoBoToolbox para Excel
      */
+    public function exportarExcel()
+    {
+        $submissions = $this->kobo->getFormattedSubmissions();
+
+        $submissionsComStatus = collect($submissions)->map(function ($sub) {
+            $sub['status'] = $this->verificarDuplicado($sub);
+            return $sub;
+        })->toArray();
+
+        $export   = new \App\Exports\KoboSubmissionsExport($submissionsComStatus);
+        $filename = 'Kwenda_Urbano_Lunda_Sul_' . now()->format('d-m-Y') . '.xlsx';
+
+        return $export->download($filename);
+    }
 
     /**
- * Exporta as submissões do KoBoToolbox para Excel
- */
-
-    public function exportarExcel()
-{
-    $submissions = $this->kobo->getFormattedSubmissions();
-
-    $submissionsComStatus = collect($submissions)->map(function ($sub) {
-        $sub['status'] = $this->verificarDuplicado($sub);
-        return $sub;
-    })->toArray();
-
-    $export   = new \App\Exports\KoboSubmissionsExport($submissionsComStatus);
-    $filename = 'Kwenda_Urbano_Lunda_Sul_' . now()->format('d-m-Y') . '.xlsx';
-
-    return $export->download($filename);
-}
-
+     * Verifica duplicados em 3 níveis:
+     * 1. Número de documento igual → duplicado confirmado
+     * 2. Nome + data de nascimento iguais → duplicado confirmado
+     * 3. Apenas nome igual → possível duplicado
+     */
     private function verificarDuplicado(array $sub): string
     {
         if (empty($sub['nome'])) {
             return 'novo';
         }
 
+        // 1. Verifica por número de documento
+        if (!empty($sub['documento'])) {
+            $duplicadoDocumento = Beneficiario::whereNotNull('documento')
+                ->where('documento', trim($sub['documento']))
+                ->exists();
+
+            if ($duplicadoDocumento) {
+                return 'duplicado';
+            }
+        }
+
+        // 2. Verifica por nome + data de nascimento
         if (!empty($sub['data_nascimento'])) {
-            $duplicadoConfirmado = Beneficiario::whereRaw(
+            $duplicadoNomeData = Beneficiario::whereRaw(
                 'LOWER(TRIM(nome)) = LOWER(TRIM(?))', [trim($sub['nome'])]
             )
             ->where('data_nasc', $sub['data_nascimento'])
             ->exists();
 
-            if ($duplicadoConfirmado) {
+            if ($duplicadoNomeData) {
                 return 'duplicado';
             }
         }
 
+        // 3. Verifica apenas por nome → possível duplicado
         $possivel = Beneficiario::whereRaw(
             'LOWER(TRIM(nome)) = LOWER(TRIM(?))', [trim($sub['nome'])]
         )->exists();
@@ -258,63 +273,63 @@ class KoboSyncController extends Controller
     }
 
     public function eliminarIndividual(Request $request)
-{
-    $koboId   = $request->input('kobo_id');
-    $baseUrl  = config('kobotoolbox.base_url');
-    $token    = config('kobotoolbox.api_token');
-    $assetUid = config('kobotoolbox.asset_uid');
+    {
+        $koboId   = $request->input('kobo_id');
+        $baseUrl  = config('kobotoolbox.base_url');
+        $token    = config('kobotoolbox.api_token');
+        $assetUid = config('kobotoolbox.asset_uid');
 
-    try {
-        $response = Http::timeout(30)->withHeaders([
-            'Authorization' => "Token {$token}",
-        ])->delete("{$baseUrl}/api/v2/assets/{$assetUid}/data/{$koboId}/");
+        try {
+            $response = Http::timeout(30)->withHeaders([
+                'Authorization' => "Token {$token}",
+            ])->delete("{$baseUrl}/api/v2/assets/{$assetUid}/data/{$koboId}/");
 
-        if ($response->successful() || $response->status() === 204) {
-            return redirect()->route('kobo.sync')->with('success', '🗑️ Registo eliminado com sucesso!');
+            if ($response->successful() || $response->status() === 204) {
+                return redirect()->route('kobo.sync')->with('success', '🗑️ Registo eliminado com sucesso!');
+            }
+
+            return redirect()->route('kobo.sync')->with('error', '❌ Não foi possível eliminar o registo.');
+        } catch (\Exception $e) {
+            return redirect()->route('kobo.sync')->with('error', '❌ Erro: ' . $e->getMessage());
         }
-
-        return redirect()->route('kobo.sync')->with('error', '❌ Não foi possível eliminar o registo.');
-    } catch (\Exception $e) {
-        return redirect()->route('kobo.sync')->with('error', '❌ Erro: ' . $e->getMessage());
     }
-}
 
-/**
- * Elimina TODOS os registos do KoBoToolbox
- */
-public function limparTodos()
-{
-    $submissions = $this->kobo->getFormattedSubmissions();
-    $eliminados  = 0;
-    $erros       = 0;
+    /**
+     * Elimina TODOS os registos do KoBoToolbox
+     */
+    public function limparTodos()
+    {
+        $submissions = $this->kobo->getFormattedSubmissions();
+        $eliminados  = 0;
+        $erros       = 0;
 
-    $baseUrl  = config('kobotoolbox.base_url');
-    $token    = config('kobotoolbox.api_token');
-    $assetUid = config('kobotoolbox.asset_uid');
+        $baseUrl  = config('kobotoolbox.base_url');
+        $token    = config('kobotoolbox.api_token');
+        $assetUid = config('kobotoolbox.asset_uid');
 
-    foreach ($submissions as $sub) {
-        if (!empty($sub['kobo_id'])) {
-            try {
-                $response = Http::timeout(30)->withHeaders([
-                    'Authorization' => "Token {$token}",
-                ])->delete("{$baseUrl}/api/v2/assets/{$assetUid}/data/{$sub['kobo_id']}/");
+        foreach ($submissions as $sub) {
+            if (!empty($sub['kobo_id'])) {
+                try {
+                    $response = Http::timeout(30)->withHeaders([
+                        'Authorization' => "Token {$token}",
+                    ])->delete("{$baseUrl}/api/v2/assets/{$assetUid}/data/{$sub['kobo_id']}/");
 
-                if ($response->successful() || $response->status() === 204) {
-                    $eliminados++;
-                } else {
+                    if ($response->successful() || $response->status() === 204) {
+                        $eliminados++;
+                    } else {
+                        $erros++;
+                    }
+                } catch (\Exception $e) {
                     $erros++;
                 }
-            } catch (\Exception $e) {
-                $erros++;
             }
         }
-    }
 
-    $mensagem = "🗑️ {$eliminados} registos eliminados do KoBoToolbox.";
-    if ($erros > 0) {
-        $mensagem .= " ⚠️ {$erros} não foi possível eliminar.";
-    }
+        $mensagem = "🗑️ {$eliminados} registos eliminados do KoBoToolbox.";
+        if ($erros > 0) {
+            $mensagem .= " ⚠️ {$erros} não foi possível eliminar.";
+        }
 
-    return redirect()->route('kobo.sync')->with('success', $mensagem);
-}
+        return redirect()->route('kobo.sync')->with('success', $mensagem);
+    }
 }
