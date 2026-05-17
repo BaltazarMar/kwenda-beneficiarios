@@ -5,6 +5,8 @@ namespace App\Imports;
 use App\Models\BeneficiarioUrbano;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
@@ -14,10 +16,22 @@ use Carbon\Carbon;
 class BeneficiariosUrbanoImport implements
     ToModel,
     WithHeadingRow,
+    WithChunkReading,
+    WithBatchInserts,
     SkipsOnError,
     SkipsOnFailure
 {
     use SkipsErrors, SkipsFailures;
+
+    public function batchSize(): int
+    {
+        return 100;
+    }
+
+    public function chunkSize(): int
+    {
+        return 100;
+    }
 
     public function model(array $row)
     {
@@ -32,7 +46,7 @@ class BeneficiariosUrbanoImport implements
                 'ip1'              => $row['ip1'] ?? null,
                 'data_nascimento'  => $this->parseData($row['data_de_nascimento'] ?? null),
                 'tipo_documento'   => $row['tipo_de_documento'] ?? null,
-                'numero_documento' => $row['no_do_documento'] ?? null, // ← CORRIGIDO
+                'numero_documento' => $row['no_do_documento'] ?? null,
                 'municipio'        => $row['municipio'] ?? null,
                 'bairro'           => $row['bairro'] ?? null,
                 'categoria'        => $row['categoria'] ?? null,
