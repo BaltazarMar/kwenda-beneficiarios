@@ -110,13 +110,25 @@ class BeneficiarioController extends Controller
         return view('kwenda.beneficiarios.show', compact('beneficiario'));
     }
 
+    // ================= EDITAR — COM VERIFICAÇÃO DE PERMISSÃO =================
     public function edit(Beneficiario $beneficiario)
     {
+        // Verificar permissão
+        if (!auth()->user()->can('editar')) {
+            return redirect()->back()->with('error', 'Não tens permissões para editar.');
+        }
+
         return view('kwenda.beneficiarios.edit', compact('beneficiario'));
     }
 
+    // ================= GUARDAR — COM VERIFICAÇÃO DE PERMISSÃO =================
     public function update(Request $request, Beneficiario $beneficiario)
     {
+        // Verificar permissão
+        if (!auth()->user()->can('editar')) {
+            return redirect()->back()->with('error', 'Não tens permissões para editar.');
+        }
+
         $request->validate([
             'nome'        => 'nullable|string|max:255',
             'sexo'        => 'nullable|in:M,F',
@@ -139,7 +151,19 @@ class BeneficiarioController extends Controller
             ->with('success', 'Beneficiário actualizado com sucesso!');
     }
 
-    public function destroy(Beneficiario $beneficiario) {}
+    // ================= ELIMINAR — COM VERIFICAÇÃO DE PERMISSÃO =================
+    public function destroy(Beneficiario $beneficiario)
+    {
+        // Verificar permissão
+        if (!auth()->user()->can('eliminar')) {
+            return redirect()->back()->with('error', 'Não tens permissões para eliminar.');
+        }
+
+        $beneficiario->delete();
+
+        return redirect()->route('beneficiarios.index')
+            ->with('success', 'Beneficiário eliminado com sucesso!');
+    }
 
     // ================= DASHBOARD =================
     public function dashboard()
@@ -263,9 +287,14 @@ class BeneficiarioController extends Controller
         ]);
     }
 
-    // ================= IMPORTAÇÃO EXCEL =================
+    // ================= IMPORTAÇÃO EXCEL — COM VERIFICAÇÃO DE PERMISSÃO =================
     public function importar(Request $request)
     {
+        // Verificar permissão
+        if (!auth()->user()->can('importar')) {
+            return redirect()->back()->with('error', 'Não tens permissões para importar.');
+        }
+
         set_time_limit(0);
         ini_set('memory_limit', '2048M');
 
