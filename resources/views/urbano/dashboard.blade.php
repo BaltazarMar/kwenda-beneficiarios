@@ -90,6 +90,41 @@
     </div>
 </div>
 
+{{-- CARDS PAGAMENTO --}}
+<div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #10b981 !important;">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0" style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Pagos</p>
+                        <h3 class="fw-bold mb-0" id="card-pagos" style="color:#10b981;">{{ number_format($pagos, 0, ',', '.') }}</h3>
+                        <small class="text-muted" id="card-pagos-pct">{{ $total > 0 ? round(($pagos / $total) * 100, 1) : 0 }}%</small>
+                    </div>
+                    <div style="width:36px; height:36px; background:#f0fdf4; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-check-circle-fill" style="color:#10b981; font-size:16px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #f59e0b !important;">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0" style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Valor Total</p>
+                        <h3 class="fw-bold mb-0" id="card-valor" style="color:#f59e0b;">{{ number_format($valorTotal, 2, ',', '.') }} Kz</h3>
+                    </div>
+                    <div style="width:36px; height:36px; background:#fffbeb; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-currency-dollar" style="color:#f59e0b; font-size:16px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- GRÁFICOS LINHA 1: MUNICÍPIO + CATEGORIA --}}
 <div class="row g-2 mb-2">
 
@@ -343,6 +378,11 @@
                 document.getElementById('card-masculino-pct').textContent = pct(data.masculino, data.total);
                 document.getElementById('card-feminino-pct').textContent  = pct(data.feminino, data.total);
                 document.getElementById('badge-bairros').textContent      = formatNum(data.bairros) + ' bairros';
+
+                // Actualiza cards de pagamento
+                document.getElementById('card-pagos').textContent     = formatNum(data.pagos);
+                document.getElementById('card-pagos-pct').textContent = pct(data.pagos, data.total);
+                document.getElementById('card-valor').textContent     = data.valorTotal + ' Kz';
 
                 graficoCategoria.data.labels = Object.keys(data.porCategoria);
                 graficoCategoria.data.datasets[0].data = Object.values(data.porCategoria);

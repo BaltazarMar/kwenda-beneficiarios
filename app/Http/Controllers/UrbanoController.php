@@ -36,9 +36,14 @@ class UrbanoController extends Controller
 
         $bairros = BeneficiarioUrbano::whereNotNull('bairro')->distinct()->count('bairro');
 
+        // NOVO: Estatísticas de pagamento
+        $pagos = BeneficiarioUrbano::where('pago', true)->count();
+        $valorTotal = BeneficiarioUrbano::sum('valor1') ?? 0;
+
         return view('urbano.dashboard', compact(
             'total', 'masculino', 'feminino',
-            'porBairro', 'porCategoria', 'porMunicipio', 'bairros'
+            'porBairro', 'porCategoria', 'porMunicipio', 'bairros',
+            'pagos', 'valorTotal'
         ));
     }
 
@@ -65,6 +70,17 @@ class UrbanoController extends Controller
 
         if ($request->filled('sexo')) {
             $query->where('sexo', $request->sexo);
+        }
+
+        // NOVO: Filtro por telefone
+        if ($request->filled('telefone')) {
+            $query->where('telefone', 'like', '%' . $request->telefone . '%');
+        }
+
+        // NOVO: Filtro por pago
+        if ($request->filled('pago')) {
+            $pago = $request->pago === 'sim' ? true : false;
+            $query->where('pago', $pago);
         }
 
         $perPage = in_array($request->per_page, [25, 50, 100]) ? $request->per_page : 25;
@@ -125,6 +141,10 @@ class UrbanoController extends Controller
 
         $bairros = (clone $query)->whereNotNull('bairro')->distinct()->count('bairro');
 
+        // NOVO: Estatísticas de pagamento
+        $pagos = (clone $query)->where('pago', true)->count();
+        $valorTotal = (clone $query)->sum('valor1') ?? 0;
+
         return response()->json([
             'total'        => $total,
             'masculino'    => $masculino,
@@ -132,6 +152,8 @@ class UrbanoController extends Controller
             'bairros'      => $bairros,
             'porBairro'    => $porBairro,
             'porCategoria' => $porCategoria,
+            'pagos'        => $pagos,
+            'valorTotal'   => number_format($valorTotal, 2, ',', '.'),
         ]);
     }
 

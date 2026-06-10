@@ -93,6 +93,21 @@
                         <option value="F" {{ request('sexo') == 'F' ? 'selected' : '' }}>F</option>
                     </select>
                 </div>
+
+                {{-- NOVOS FILTROS --}}
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Telefone</label>
+                    <input type="text" name="telefone" class="form-control form-control-sm" placeholder="Telefone" value="{{ request('telefone') }}">
+                </div>
+                <div class="col-6 col-md-1">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Pago?</label>
+                    <select name="pago" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                        <option value="sim" {{ request('pago') == 'sim' ? 'selected' : '' }}>Sim</option>
+                        <option value="nao" {{ request('pago') == 'nao' ? 'selected' : '' }}>Não</option>
+                    </select>
+                </div>
+
                 <div class="col-12 col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-primary btn-sm w-100">
                         <i class="bi bi-search"></i> Filtrar
@@ -120,6 +135,13 @@
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Bairro</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Categoria</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Documento</th>
+                        
+                        {{-- NOVAS COLUNAS --}}
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Telefone</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Social ID</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Conta</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Pago</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Valor</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -146,10 +168,25 @@
                             @endif
                         </td>
                         <td class="py-3 text-muted" style="font-size:12px;">{{ $b->numero_documento ?? '—' }}</td>
+                        
+                        {{-- NOVOS DADOS --}}
+                        <td class="py-3 text-muted" style="font-size:12px;">{{ $b->telefone ?? '—' }}</td>
+                        <td class="py-3 text-muted" style="font-size:12px;">{{ $b->social_id ?? '—' }}</td>
+                        <td class="py-3 text-muted" style="font-size:12px;">{{ $b->numero_da_conta ?? '—' }}</td>
+                        <td class="py-3">
+                            @if($b->pago)
+                                <span class="badge" style="background:#d1fae5; color:#059669; font-weight:600;">✓ Sim</span>
+                            @else
+                                <span class="badge" style="background:#fee2e2; color:#dc2626; font-weight:600;">✗ Não</span>
+                            @endif
+                        </td>
+                        <td class="py-3 text-muted" style="font-size:12px;">
+                            {{ $b->valor1 ? number_format($b->valor1, 2, ',', '.') . ' Kz' : '—' }}
+                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-5">
+                        <td colspan="13" class="text-center text-muted py-5">
                             <i class="bi bi-inbox" style="font-size:32px; display:block; margin-bottom:8px;"></i>
                             Nenhum beneficiário encontrado.
                         </td>
