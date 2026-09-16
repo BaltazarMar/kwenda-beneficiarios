@@ -51,7 +51,7 @@ class BeneficiariosUrbanoImport implements
                 'municipio'        => $row['municipio'] ?? $row['município'] ?? null,
                 'bairro'           => $row['bairro'] ?? null,
                 'categoria'        => $row['categoria'] ?? null,
-                'observacao'       => $row['observacao'] ?? $row['observação'] ?? null,
+                'observacao'       => $row['observacao'] ?? $row['observação'] ?? $row['obs'] ?? null,
 
                 // ===== NOVOS CAMPOS =====
                 'social_id'              => $row['social_id'] ?? null,
@@ -66,7 +66,7 @@ class BeneficiariosUrbanoImport implements
                 'provincia_residencia'   => $row['provincia_residencia'] ?? $row['província_residência'] ?? null,
                 'municipio_residencia'   => $row['municipio_residencia'] ?? $row['município_residência'] ?? null,
                 'comuna'                 => $row['comuna'] ?? null,
-                'data_inscricao'         => $this->parseData($row['data_inscricao'] ?? $row['data_de_inscrição'] ?? null),
+                'data_inscricao'         => $this->parseData($row['data_inscricao'] ?? $row['data_de_inscricao'] ?? null),
                 'pago'                   => $this->parseBoolean($row['pago'] ?? false),
                 'valor1'                 => $this->parseDecimal($row['valor1'] ?? null),
                 'data1'                  => $this->parseData($row['data1'] ?? null),
