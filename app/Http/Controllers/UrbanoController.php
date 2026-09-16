@@ -169,7 +169,23 @@ class UrbanoController extends Controller
 
         try {
             Excel::import($import, $request->file('file'));
-            return back()->with('success', 'Importacao concluida com sucesso!');
+
+            $erros = $import->errors();
+            $falhas = $import->failures();
+
+            if ($erros->isNotEmpty() || $falhas->isNotEmpty()) {
+                $mensagens = [];
+                foreach ($erros as $erro) {
+                    $mensagens[] = $erro->getMessage();
+                }
+                foreach ($falhas as $falha) {
+                    $mensagens[] = "Linha {$falha->row()}: " . implode(', ', $falha->errors());
+                }
+                \Log::error('Erros na importação urbano: ' . implode(' | ', $mensagens));
+                return back()->with('error', 'Importação com erros: ' . implode(' | ', array_slice($mensagens, 0, 5)));
+            }
+
+            return back()->with('success', 'Importacao concluida com sucesso! Total: ' . BeneficiarioUrbano::count());
         } catch (\Exception $e) {
             return back()->with('error', 'Erro ao importar: ' . $e->getMessage());
         }
