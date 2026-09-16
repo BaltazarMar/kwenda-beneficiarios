@@ -35,7 +35,7 @@ class BeneficiariosUrbanoImport implements
 
     public function model(array $row)
     {
-        $identificador = trim($row['identificador'] ?? '');
+        $identificador = trim($row['social_id'] ?? '');
         if (empty($identificador)) return null;
 
         return BeneficiarioUrbano::updateOrCreate(
