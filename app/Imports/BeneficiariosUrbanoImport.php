@@ -67,7 +67,7 @@ class BeneficiariosUrbanoImport implements
                 'municipio_residencia'   => $row['municipio_residencia'] ?? $row['município_residência'] ?? null,
                 'comuna'                 => $row['comuna'] ?? null,
                 'data_inscricao'         => $this->parseData($row['data_inscricao'] ?? $row['data_de_inscricao'] ?? null),
-                'pago'                   => $this->parseBoolean($row['pago'] ?? false),
+                'pago'                   => $this->parsePago($row['pago'] ?? null),
                 'valor1'                 => $this->parseDecimal($row['valor1'] ?? null),
                 'data1'                  => $this->parseData($row['data1'] ?? null),
                 'rece_valor_agregado'    => $this->parseDecimal($row['rece_valor_agregado'] ?? null),
@@ -112,20 +112,20 @@ class BeneficiariosUrbanoImport implements
     }
 
     /**
-     * Converte para booleano (sim/não, yes/no, 1/0, true/false)
+     * Converte o campo Pago para 'sim', 'nao' ou 'nunca'
      */
-    private function parseBoolean($valor)
+    private function parsePago($valor)
     {
-        if (is_bool($valor)) {
-            return $valor;
-        }
-
         if (is_null($valor)) {
-            return false;
+            return 'nao';
         }
 
-        $val = strtolower(trim((string)$valor));
-        return in_array($val, ['sim', 'yes', 's', 'y', '1', 'true']);
+        $val = strtoupper(trim((string)$valor));
+
+        if ($val === 'SIM')   return 'sim';
+        if ($val === 'NUNCA') return 'nunca';
+
+        return 'nao';
     }
 
     /**
