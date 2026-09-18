@@ -37,13 +37,15 @@ class UrbanoController extends Controller
         $bairros = BeneficiarioUrbano::whereNotNull('bairro')->distinct()->count('bairro');
 
         // NOVO: Estatísticas de pagamento
-        $pagos = BeneficiarioUrbano::where('pago', true)->count();
+        $pagos = BeneficiarioUrbano::where('pago', 'sim')->count();
+        $naoPagos = BeneficiarioUrbano::where('pago', 'nao')->count();
+        $nuncaPagos = BeneficiarioUrbano::where('pago', 'nunca')->count();
         $valorTotal = BeneficiarioUrbano::sum('valor1') ?? 0;
 
         return view('urbano.dashboard', compact(
             'total', 'masculino', 'feminino',
             'porBairro', 'porCategoria', 'porMunicipio', 'bairros',
-            'pagos', 'valorTotal'
+            'pagos', 'naoPagos', 'nuncaPagos', 'valorTotal'
         ));
     }
 
