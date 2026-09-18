@@ -122,6 +122,9 @@ class UrbanoController extends Controller
         if ($request->filled('municipio')) {
             $query->where('municipio_residencia', $request->municipio);
         }
+       if ($request->filled('categoria')) {
+            $query->where('categoria', $request->categoria);
+        }
 
         $total     = $query->count();
         $masculino = (clone $query)->where('sexo', 'M')->count();

@@ -251,6 +251,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     let municipioActivo = null;
+    let categoriaActiva = null;
 
     const pluginNumeros = {
         id: 'pluginNumeros',
@@ -396,9 +397,11 @@
     });
 
     // ===== CARREGAR TUDO =====
-    function carregarTudo() {
-        let url = '/urbano-filtros';
-        if (municipioActivo) url += `?municipio=${encodeURIComponent(municipioActivo)}`;
+        function carregarTudo() {
+        const params = new URLSearchParams();
+        if (municipioActivo) params.set('municipio', municipioActivo);
+        if (categoriaActiva) params.set('categoria', categoriaActiva);
+        const url = '/urbano-filtros' + (params.toString() ? '?' + params.toString() : '');
 
         fetch(url)
             .then(res => res.json())
