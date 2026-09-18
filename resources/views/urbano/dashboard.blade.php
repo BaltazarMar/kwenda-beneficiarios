@@ -109,6 +109,38 @@
         </div>
     </div>
     <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #ef4444 !important;">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0" style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Não Pagos</p>
+                        <h3 class="fw-bold mb-0" id="card-nao-pagos" style="color:#ef4444;">{{ number_format($naoPagos, 0, ',', '.') }}</h3>
+                        <small class="text-muted" id="card-nao-pagos-pct">{{ $total > 0 ? round(($naoPagos / $total) * 100, 1) : 0 }}%</small>
+                    </div>
+                    <div style="width:36px; height:36px; background:#fef2f2; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-x-circle-fill" style="color:#ef4444; font-size:16px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #6b7280 !important;">
+            <div class="card-body py-2 px-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-0" style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Nunca (Inelegíveis)</p>
+                        <h3 class="fw-bold mb-0" id="card-nunca-pagos" style="color:#6b7280;">{{ number_format($nuncaPagos, 0, ',', '.') }}</h3>
+                        <small class="text-muted" id="card-nunca-pagos-pct">{{ $total > 0 ? round(($nuncaPagos / $total) * 100, 1) : 0 }}%</small>
+                    </div>
+                    <div style="width:36px; height:36px; background:#f9fafb; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-dash-circle-fill" style="color:#6b7280; font-size:16px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
         <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #f59e0b !important;">
             <div class="card-body py-2 px-3">
                 <div class="d-flex justify-content-between align-items-center">
