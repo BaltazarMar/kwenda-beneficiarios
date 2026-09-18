@@ -357,6 +357,16 @@
             scales: {
                 x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
                 y: { display: false, beginAtZero: true }
+            },
+            onClick: (event, elements) => {
+                if (elements.length > 0) {
+                    const categoria = graficoCategoria.data.labels[elements[0].index];
+                    categoriaActiva = (categoriaActiva === categoria) ? null : categoria;
+                    carregarTudo();
+                }
+            },
+            onHover: (event, elements) => {
+                event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default';
             }
         }
     });
@@ -397,7 +407,7 @@
     });
 
     // ===== CARREGAR TUDO =====
-        function carregarTudo() {
+    function carregarTudo() {
         const params = new URLSearchParams();
         if (municipioActivo) params.set('municipio', municipioActivo);
         if (categoriaActiva) params.set('categoria', categoriaActiva);
