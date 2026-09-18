@@ -50,7 +50,7 @@ class BeneficiariosUrbanoImport implements
                 'numero_documento' => $row['no_do_documento'] ?? $row['numero_documento'] ?? $row['nº_do_documento'] ?? null,
                 'municipio'        => $row['municipio'] ?? $row['município'] ?? null,
                 'bairro'           => $row['bairro'] ?? null,
-                'categoria'        => $row['categoria'] ?? null,
+                'categoria'        => trim($row['categoria'] ?? '') ?: null,
                 'observacao'       => $row['observacao'] ?? $row['observação'] ?? $row['obs'] ?? null,
 
                 // ===== NOVOS CAMPOS =====
