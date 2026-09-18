@@ -358,10 +358,16 @@
                 x: { ticks: { maxRotation: 45, minRotation: 45, font: { size: 10 } }, grid: { display: false } },
                 y: { display: false, beginAtZero: true }
             },
-            onClick: (event, elements) => {
+                        onClick: (event, elements) => {
                 if (elements.length > 0) {
                     const categoria = graficoCategoria.data.labels[elements[0].index];
                     categoriaActiva = (categoriaActiva === categoria) ? null : categoria;
+                    if (categoriaActiva) {
+                        document.getElementById('municipio-label').textContent = '🏷️ ' + categoriaActiva;
+                        document.getElementById('filtro-activo').classList.remove('d-none');
+                    } else if (!municipioActivo) {
+                        document.getElementById('filtro-activo').classList.add('d-none');
+                    }
                     carregarTudo();
                 }
             },
@@ -457,8 +463,9 @@
     }
 
     // ===== LIMPAR FILTRO =====
-    document.getElementById('btn-limpar').addEventListener('click', () => {
+        document.getElementById('btn-limpar').addEventListener('click', () => {
         municipioActivo = null;
+        categoriaActiva = null;
         document.getElementById('filtro-activo').classList.add('d-none');
         carregarTudo();
     });
