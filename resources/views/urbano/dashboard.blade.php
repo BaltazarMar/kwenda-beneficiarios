@@ -412,9 +412,13 @@
                 document.getElementById('badge-bairros').textContent      = formatNum(data.bairros) + ' bairros';
 
                 // Actualiza cards de pagamento
-                document.getElementById('card-pagos').textContent     = formatNum(data.pagos);
-                document.getElementById('card-pagos-pct').textContent = pct(data.pagos, data.total);
-                document.getElementById('card-valor').textContent     = data.valorTotal + ' Kz';
+                document.getElementById('card-pagos').textContent         = formatNum(data.pagos);
+                document.getElementById('card-pagos-pct').textContent     = pct(data.pagos, data.total);
+                document.getElementById('card-nao-pagos').textContent     = formatNum(data.naoPagos);
+                document.getElementById('card-nao-pagos-pct').textContent = pct(data.naoPagos, data.total);
+                document.getElementById('card-nunca-pagos').textContent     = formatNum(data.nuncaPagos);
+                document.getElementById('card-nunca-pagos-pct').textContent = pct(data.nuncaPagos, data.total);
+                document.getElementById('card-valor').textContent         = data.valorTotal + ' Kz';
 
                 graficoCategoria.data.labels = Object.keys(data.porCategoria);
                 graficoCategoria.data.datasets[0].data = Object.values(data.porCategoria);

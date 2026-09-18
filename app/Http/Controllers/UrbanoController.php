@@ -37,17 +37,24 @@ class UrbanoController extends Controller
         $bairros = BeneficiarioUrbano::whereNotNull('bairro')->distinct()->count('bairro');
 
         // NOVO: Estatísticas de pagamento
-        $pagos = BeneficiarioUrbano::where('pago', 'sim')->count();
-        $naoPagos = BeneficiarioUrbano::where('pago', 'nao')->count();
-        $nuncaPagos = BeneficiarioUrbano::where('pago', 'nunca')->count();
-        $valorTotal = BeneficiarioUrbano::sum('valor1') ?? 0;
+        
+        $pagos = (clone $query)->where('pago', 'sim')->count();
+        $naoPagos = (clone $query)->where('pago', 'nao')->count();
+        $nuncaPagos = (clone $query)->where('pago', 'nunca')->count();
+        $valorTotal = (clone $query)->sum('valor1') ?? 0;
 
-        return view('urbano.dashboard', compact(
-            'total', 'masculino', 'feminino',
-            'porBairro', 'porCategoria', 'porMunicipio', 'bairros',
-            'pagos', 'naoPagos', 'nuncaPagos', 'valorTotal'
-        ));
-    }
+        return response()->json([
+            'total'        => $total,
+            'masculino'    => $masculino,
+            'feminino'     => $feminino,
+            'bairros'      => $bairros,
+            'porBairro'    => $porBairro,
+            'porCategoria' => $porCategoria,
+            'pagos'        => $pagos,
+            'naoPagos'     => $naoPagos,
+            'nuncaPagos'   => $nuncaPagos,
+            'valorTotal'   => number_format($valorTotal, 2, ',', '.'),
+        ]);
 
     // ================= LISTAGEM =================
     public function index(Request $request)
