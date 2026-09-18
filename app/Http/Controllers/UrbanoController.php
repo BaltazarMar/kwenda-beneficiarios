@@ -28,11 +28,11 @@ class UrbanoController extends Controller
             ->orderByDesc('total')
             ->pluck('total', 'categoria');
 
-        $porMunicipio = BeneficiarioUrbano::selectRaw('municipio, COUNT(*) as total')
-            ->whereNotNull('municipio')
-            ->groupBy('municipio')
+        $porMunicipio = BeneficiarioUrbano::selectRaw('municipio_residencia, COUNT(*) as total')
+            ->whereNotNull('municipio_residencia')
+            ->groupBy('municipio_residencia')
             ->orderByDesc('total')
-            ->pluck('total', 'municipio');
+            ->pluck('total', 'municipio_residencia');
 
         $bairros = BeneficiarioUrbano::whereNotNull('bairro')->distinct()->count('bairro');
 
