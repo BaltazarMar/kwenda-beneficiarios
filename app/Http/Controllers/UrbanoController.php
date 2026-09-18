@@ -37,24 +37,17 @@ class UrbanoController extends Controller
         $bairros = BeneficiarioUrbano::whereNotNull('bairro')->distinct()->count('bairro');
 
         // NOVO: Estatísticas de pagamento
-        
-        $pagos = (clone $query)->where('pago', 'sim')->count();
-        $naoPagos = (clone $query)->where('pago', 'nao')->count();
-        $nuncaPagos = (clone $query)->where('pago', 'nunca')->count();
-        $valorTotal = (clone $query)->sum('valor1') ?? 0;
+        $pagos = BeneficiarioUrbano::where('pago', 'sim')->count();
+        $naoPagos = BeneficiarioUrbano::where('pago', 'nao')->count();
+        $nuncaPagos = BeneficiarioUrbano::where('pago', 'nunca')->count();
+        $valorTotal = BeneficiarioUrbano::sum('valor1') ?? 0;
 
-        return response()->json([
-            'total'        => $total,
-            'masculino'    => $masculino,
-            'feminino'     => $feminino,
-            'bairros'      => $bairros,
-            'porBairro'    => $porBairro,
-            'porCategoria' => $porCategoria,
-            'pagos'        => $pagos,
-            'naoPagos'     => $naoPagos,
-            'nuncaPagos'   => $nuncaPagos,
-            'valorTotal'   => number_format($valorTotal, 2, ',', '.'),
-        ]);
+        return view('urbano.dashboard', compact(
+            'total', 'masculino', 'feminino',
+            'porBairro', 'porCategoria', 'porMunicipio', 'bairros',
+            'pagos', 'naoPagos', 'nuncaPagos', 'valorTotal'
+        ));
+    }
 
     // ================= LISTAGEM =================
     public function index(Request $request)
@@ -127,7 +120,7 @@ class UrbanoController extends Controller
         $query = BeneficiarioUrbano::query();
 
         if ($request->filled('municipio')) {
-            $query->where('municipio', $request->municipio);
+            $query->where('municipio_residencia', $request->municipio);
         }
 
         $total     = $query->count();
@@ -151,7 +144,9 @@ class UrbanoController extends Controller
         $bairros = (clone $query)->whereNotNull('bairro')->distinct()->count('bairro');
 
         // NOVO: Estatísticas de pagamento
-        $pagos = (clone $query)->where('pago', true)->count();
+        $pagos = (clone $query)->where('pago', 'sim')->count();
+        $naoPagos = (clone $query)->where('pago', 'nao')->count();
+        $nuncaPagos = (clone $query)->where('pago', 'nunca')->count();
         $valorTotal = (clone $query)->sum('valor1') ?? 0;
 
         return response()->json([
@@ -162,6 +157,8 @@ class UrbanoController extends Controller
             'porBairro'    => $porBairro,
             'porCategoria' => $porCategoria,
             'pagos'        => $pagos,
+            'naoPagos'     => $naoPagos,
+            'nuncaPagos'   => $nuncaPagos,
             'valorTotal'   => number_format($valorTotal, 2, ',', '.'),
         ]);
     }
