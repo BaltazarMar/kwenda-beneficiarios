@@ -51,7 +51,6 @@ class BeneficiarioUrbano extends Model
         'data_nascimento' => 'date',
         'data_inscricao' => 'date',
         'data1' => 'date',
-        'pago' => 'boolean',
         'valor1' => 'decimal:2',
         'rece_valor_agregado' => 'decimal:2',
     ];
