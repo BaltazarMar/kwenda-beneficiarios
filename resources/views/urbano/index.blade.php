@@ -174,8 +174,10 @@
                         <td class="py-3 text-muted" style="font-size:12px;">{{ $b->social_id ?? '—' }}</td>
                         <td class="py-3 text-muted" style="font-size:12px;">{{ $b->numero_da_conta ?? '—' }}</td>
                         <td class="py-3">
-                            @if($b->pago)
+                            @if($b->pago === 'sim')
                                 <span class="badge" style="background:#d1fae5; color:#059669; font-weight:600;">✓ Sim</span>
+                            @elseif($b->pago === 'nunca')
+                                <span class="badge" style="background:#f3f4f6; color:#6b7280; font-weight:600;">— Nunca</span>
                             @else
                                 <span class="badge" style="background:#fee2e2; color:#dc2626; font-weight:600;">✗ Não</span>
                             @endif
