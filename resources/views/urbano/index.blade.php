@@ -134,7 +134,6 @@
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Data Nasc.</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Bairro</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Categoria</th>
-                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Documento</th>
                         
                         {{-- NOVAS COLUNAS --}}
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Telefone</th>
@@ -166,7 +165,6 @@
                                 <span class="text-muted">—</span>
                             @endif
                         </td>
-                        <td class="py-3 text-muted" style="font-size:12px;">{{ $b->numero_documento ?? '—' }}</td>
                         
                         {{-- NOVOS DADOS --}}
                         <td class="py-3 text-muted" style="font-size:12px;">{{ $b->telefone ?? '—' }}</td>
@@ -186,7 +184,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="11" class="text-center text-muted py-5">
+                        <td colspan="10" class="text-center text-muted py-5">
                             <i class="bi bi-inbox" style="font-size:32px; display:block; margin-bottom:8px;"></i>
                             Nenhum beneficiário encontrado.
                         </td>
