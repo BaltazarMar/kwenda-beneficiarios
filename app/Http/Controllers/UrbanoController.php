@@ -49,6 +49,12 @@ class UrbanoController extends Controller
         ));
     }
 
+    // ================= DETALHES =================
+    public function show(BeneficiarioUrbano $beneficiario)
+    {
+        return view('urbano.show', compact('beneficiario'));
+    }
+
     // ================= LISTAGEM =================
     public function index(Request $request)
     {

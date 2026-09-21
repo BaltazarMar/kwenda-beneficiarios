@@ -31,7 +31,8 @@ return new class extends Migration
             $table->date('data1')->nullable()->after('valor1');
             $table->decimal('rece_valor_agregado', 10, 2)->nullable()->after('data1');
             $table->string('nome_valor_agregado')->nullable()->after('rece_valor_agregado');
-            $table->string('coordenada_bancaria')->nullable()->after('nome_valor_agregado');
+            $table->text('obs')->nullable()->after('nome_valor_agregado');
+            $table->string('coordenada_bancaria')->nullable()->after('obs');
         });
     }
 
@@ -60,6 +61,7 @@ return new class extends Migration
                 'data1',
                 'rece_valor_agregado',
                 'nome_valor_agregado',
+                'obs',
                 'coordenada_bancaria',
             ]);
         });

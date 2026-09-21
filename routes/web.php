@@ -124,6 +124,7 @@ Route::prefix('kobo')->name('kobo.')->middleware(['auth'])->group(function () {
 // IMPORTANTE: sugestoes ANTES da rota principal
 Route::get('/urbano-beneficiarios/sugestoes', [UrbanoController::class, 'sugestoes']);
 Route::get('/urbano-beneficiarios', [UrbanoController::class, 'index']);
+Route::get('/urbano-beneficiarios/{beneficiario}', [UrbanoController::class, 'show']);
 Route::post('/urbano-importar', [UrbanoController::class, 'importar']);
 Route::get('/urbano-importar', function () {
     return view('urbano.importar');
