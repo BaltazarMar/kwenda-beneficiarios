@@ -105,6 +105,7 @@
                         <option value="">Todos</option>
                         <option value="sim" {{ request('pago') == 'sim' ? 'selected' : '' }}>Sim</option>
                         <option value="nao" {{ request('pago') == 'nao' ? 'selected' : '' }}>Não</option>
+                        <option value="nunca" {{ request('pago') == 'nunca' ? 'selected' : '' }}>Nunca</option>
                     </select>
                 </div>
 
@@ -134,12 +135,13 @@
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Data Nasc.</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Bairro</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Categoria</th>
-                        
+
                         {{-- NOVAS COLUNAS --}}
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Telefone</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Conta</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Pago</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Valor</th>
+                        <th class="py-3 text-end pe-4" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -165,7 +167,7 @@
                                 <span class="text-muted">—</span>
                             @endif
                         </td>
-                        
+
                         {{-- NOVOS DADOS --}}
                         <td class="py-3 text-muted" style="font-size:12px;">{{ $b->telefone ?? '—' }}</td>
                         <td class="py-3 text-muted" style="font-size:12px;">{{ $b->numero_da_conta ?? '—' }}</td>
@@ -181,10 +183,18 @@
                         <td class="py-3 text-muted" style="font-size:12px;">
                             {{ $b->valor1 ? number_format($b->valor1, 2, ',', '.') . ' Kz' : '—' }}
                         </td>
+                        <td class="py-3 text-end pe-4" style="white-space:nowrap;">
+                            <a href="{{ url('/urbano-beneficiarios/' . $b->id) }}" class="btn btn-sm btn-outline-primary" title="Ver detalhes">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url('/urbano-beneficiarios/' . $b->id . '/edit') }}" class="btn btn-sm btn-outline-warning" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="text-center text-muted py-5">
+                        <td colspan="11" class="text-center text-muted py-5">
                             <i class="bi bi-inbox" style="font-size:32px; display:block; margin-bottom:8px;"></i>
                             Nenhum beneficiário encontrado.
                         </td>
