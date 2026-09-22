@@ -55,6 +55,54 @@ class UrbanoController extends Controller
         return view('urbano.show', compact('beneficiario'));
     }
 
+    // ================= EDITAR (FORMULÁRIO) =================
+    public function edit(BeneficiarioUrbano $beneficiario)
+    {
+        return view('urbano.edit', compact('beneficiario'));
+    }
+
+    // ================= EDITAR (GUARDAR) =================
+    public function update(Request $request, BeneficiarioUrbano $beneficiario)
+    {
+        $validated = $request->validate([
+            'identificador'          => 'nullable|string|max:255',
+            'nome'                   => 'required|string|max:255',
+            'sexo'                   => 'nullable|in:M,F',
+            'ip1'                    => 'nullable|string|max:255',
+            'data_nascimento'        => 'nullable|date',
+            'tipo_documento'         => 'nullable|string|max:255',
+            'numero_documento'       => 'nullable|string|max:255',
+            'municipio'              => 'nullable|string|max:255',
+            'bairro'                 => 'nullable|string|max:255',
+            'categoria'              => 'nullable|string|max:255',
+            'observacao'             => 'nullable|string',
+            'social_id'              => 'nullable|string|max:255',
+            'numero_da_conta'        => 'nullable|string|max:255',
+            'numero_administrativo'  => 'nullable|string|max:255',
+            'card_id'                => 'nullable|string|max:255',
+            'telefone'               => 'nullable|string|max:255',
+            'agencia'                => 'nullable|string|max:255',
+            'beneficiario'           => 'nullable|string|max:255',
+            'contacto'               => 'nullable|string|max:255',
+            'profissao'              => 'nullable|string|max:255',
+            'provincia_residencia'   => 'nullable|string|max:255',
+            'municipio_residencia'   => 'nullable|string|max:255',
+            'comuna'                 => 'nullable|string|max:255',
+            'data_inscricao'         => 'nullable|date',
+            'pago'                   => 'nullable|in:sim,nao,nunca',
+            'valor1'                 => 'nullable|numeric',
+            'data1'                  => 'nullable|date',
+            'rece_valor_agregado'    => 'nullable|numeric',
+            'nome_valor_agregado'    => 'nullable|string|max:255',
+            'coordenada_bancaria'    => 'nullable|string|max:255',
+        ]);
+
+        $beneficiario->update($validated);
+
+        return redirect('/urbano-beneficiarios/' . $beneficiario->id)
+            ->with('success', 'Beneficiário atualizado com sucesso!');
+    }
+
     // ================= LISTAGEM =================
     public function index(Request $request)
     {
@@ -85,10 +133,9 @@ class UrbanoController extends Controller
             $query->where('telefone', 'like', '%' . $request->telefone . '%');
         }
 
-        // NOVO: Filtro por pago
+        // Filtro por pago (campo é string: 'sim' | 'nao' | 'nunca')
         if ($request->filled('pago')) {
-            $pago = $request->pago === 'sim' ? true : false;
-            $query->where('pago', $pago);
+            $query->where('pago', $request->pago);
         }
 
         $perPage = in_array($request->per_page, [25, 50, 100]) ? $request->per_page : 25;
