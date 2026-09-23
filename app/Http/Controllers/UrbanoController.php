@@ -42,10 +42,19 @@ class UrbanoController extends Controller
         $nuncaPagos = BeneficiarioUrbano::where('pago', 'nunca')->count();
         $valorTotal = BeneficiarioUrbano::sum('valor1') ?? 0;
 
+        // NOVO: Apoios em Equipamentos (Capital Humano)
+        $porEquipamento = BeneficiarioUrbano::selectRaw('nome_valor_agregado, COUNT(*) as total')
+            ->whereNotNull('nome_valor_agregado')
+            ->where('nome_valor_agregado', '!=', '')
+            ->groupBy('nome_valor_agregado')
+            ->orderByDesc('total')
+            ->pluck('total', 'nome_valor_agregado');
+
         return view('urbano.dashboard', compact(
             'total', 'masculino', 'feminino',
             'porBairro', 'porCategoria', 'porMunicipio', 'bairros',
-            'pagos', 'naoPagos', 'nuncaPagos', 'valorTotal'
+            'pagos', 'naoPagos', 'nuncaPagos', 'valorTotal',
+            'porEquipamento'
         ));
     }
 

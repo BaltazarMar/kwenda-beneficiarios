@@ -157,6 +157,49 @@
     </div>
 </div>
 
+{{-- APOIOS EM EQUIPAMENTOS (CAPITAL HUMANO) --}}
+@if($porEquipamento->isNotEmpty())
+<div class="row g-2 mb-3">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header border-0 pb-0 pt-2 px-3" style="background:transparent;">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div style="width:26px; height:26px; background:#eff6ff; border-radius:6px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-universal-access-circle" style="color:#3b82f6; font-size:12px;"></i>
+                    </div>
+                    <span class="fw-bold" style="font-size:13px;">Apoios em Equipamentos (Capital Humano)</span>
+                </div>
+                <hr class="mt-1 mb-0">
+            </div>
+            <div class="card-body py-3">
+                <div class="row g-3 text-center">
+                    @php
+                        // Mapa de ícones por tipo de equipamento (ajusta/acrescenta conforme os nomes reais na tua base de dados)
+                        $iconesEquipamento = [
+                            'cadeira de rodas' => '🦽',
+                            'chapéu'           => '🎩',
+                            'chapeu'           => '🎩',
+                            'andarilho'        => '🦯',
+                            'canadianas'       => '🩼',
+                            'guia cego'        => '🦮',
+                        ];
+                    @endphp
+                    @foreach($porEquipamento as $nome => $qtd)
+                        <div class="col-6 col-md">
+                            <div style="font-size:28px; line-height:1;">
+                                {{ $iconesEquipamento[mb_strtolower(trim($nome))] ?? '🎁' }}
+                            </div>
+                            <div class="fw-semibold mt-1" style="font-size:13px; color:#0f172a;">{{ $nome }}</div>
+                            <div class="fw-bold" style="font-size:20px; color:#3b82f6;">{{ number_format($qtd, 0, ',', '.') }}</div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 {{-- GRÁFICOS LINHA 1: MUNICÍPIO + CATEGORIA --}}
 <div class="row g-2 mb-2">
 
