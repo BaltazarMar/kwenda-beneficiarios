@@ -1,356 +1,353 @@
-<?php
+@extends('layouts.app')
 
-namespace App\Http\Controllers;
+@section('titulo', 'Beneficiários')
 
-use App\Models\Beneficiario;
-use Illuminate\Http\Request;
-use App\Imports\BeneficiariosImport;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\BeneficiariosExport;
+@section('content')
 
-class BeneficiarioController extends Controller
-{
-    // ================= BENEFICIÁRIOS =================
-    public function index(Request $request)
-    {
-        $query = Beneficiario::query();
+{{-- TOPO --}}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-0 fw-bold">Lista de Beneficiários</h4>
+        <p class="text-muted mb-0" style="font-size:13px;">
+            Total filtrado: <strong>{{ $beneficiarios->total() }}</strong> registos
+        </p>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        <form method="GET" action="{{ url('/beneficiarios') }}" id="form-perpage" class="d-flex align-items-center gap-2">
+            @foreach(request()->except('per_page') as $key => $value)
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endforeach
+            <select name="per_page" class="form-select form-select-sm w-auto" onchange="document.getElementById('form-perpage').submit()">
+                <option value="25"  {{ request('per_page', 25) == 25  ? 'selected' : '' }}>25</option>
+                <option value="50"  {{ request('per_page') == 50  ? 'selected' : '' }}>50</option>
+                <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+            </select>
+        </form>
+        <a href="{{ url('/beneficiarios/exportar') }}?{{ http_build_query(request()->all()) }}" class="btn btn-sm btn-success">
+            <i class="bi bi-download"></i> Exportar Excel
+        </a>
+    </div>
+</div>
 
-        if ($request->filled('nome')) {
-            $query->where('nome', 'like', '%' . $request->nome . '%');
-        }
+{{-- FILTROS --}}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url('/beneficiarios') }}" id="form-filtro">
+            <div class="row g-2 align-items-end">
 
-        if ($request->filled('social_id')) {
-            $query->where('social_id', $request->social_id);
-        }
+                {{-- CAMPO NOME COM AUTOCOMPLETE --}}
+                <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Nome</label>
+                    <div style="position:relative;">
+                        <input
+                            type="text"
+                            name="nome"
+                            id="input-nome"
+                            class="form-control form-control-sm"
+                            placeholder="Pesquisar por nome..."
+                            value="{{ request('nome') }}"
+                            autocomplete="off"
+                        >
+                        <ul id="autocomplete-list" style="
+                            display:none;
+                            position:absolute;
+                            top:100%;
+                            left:0;
+                            right:0;
+                            z-index:1000;
+                            background:#fff;
+                            border:1px solid #e2e8f0;
+                            border-top:none;
+                            border-radius:0 0 8px 8px;
+                            max-height:220px;
+                            overflow-y:auto;
+                            list-style:none;
+                            margin:0;
+                            padding:4px 0;
+                            box-shadow:0 4px 12px rgba(0,0,0,0.08);
+                        "></ul>
+                    </div>
+                </div>
 
-        if ($request->filled('municipio')) {
-            $query->where('municipio', $request->municipio);
-        }
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Social ID</label>
+                    <input type="text" name="social_id" class="form-control form-control-sm" placeholder="Social ID" value="{{ request('social_id') }}">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Município</label>
+                    <select name="municipio" id="select-municipio" class="form-select form-select-sm">
+                        <option value="">Todos os municípios</option>
+                        @foreach($municipios as $municipio)
+                            <option value="{{ $municipio }}" {{ request('municipio') == $municipio ? 'selected' : '' }}>
+                                {{ $municipio }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Bairro</label>
+                    <select name="bairro" id="select-bairro" class="form-select form-select-sm">
+                        <option value="">Todos os bairros</option>
+                        @foreach($bairros as $bairro)
+                            <option value="{{ $bairro }}" {{ request('bairro') == $bairro ? 'selected' : '' }}>
+                                {{ $bairro }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-6 col-md-1">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Estado</label>
+                    <select name="pago" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                        <option value="1" {{ request('pago') === '1' ? 'selected' : '' }}>Pago</option>
+                        <option value="0" {{ request('pago') === '0' ? 'selected' : '' }}>Não Pago</option>
+                        <option value="2" {{ request('pago') === '2' ? 'selected' : '' }}>Nunca Pago</option>
+                    </select>
+                </div>
 
-        if ($request->filled('bairro')) {
-            $query->where('bairro', $request->bairro);
-        }
+                {{-- NOVO FILTRO: RECIBOS AUSENTES --}}
+                <div class="col-6 col-md-2">
+                    <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Recibos</label>
+                    <select name="recibo" class="form-select form-select-sm">
+                        <option value="">Todos</option>
+                        <option value="rec12_ausente" {{ request('recibo') == 'rec12_ausente' ? 'selected' : '' }}>
+                            Ausente Rec1 + Rec2
+                        </option>
+                        <option value="rec34_ausente" {{ request('recibo') == 'rec34_ausente' ? 'selected' : '' }}>
+                            Ausente Rec3 + Rec4
+                        </option>
+                    </select>
+                </div>
 
-        if ($request->filled('pago') && $request->pago !== '') {
-            $query->where('pago', $request->pago);
-        }
+                <div class="col-12 col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                    <a href="{{ url('/beneficiarios') }}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="bi bi-x-lg"></i> Limpar
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
-        if ($request->filled('sexo')) {
-            $query->where('sexo', $request->sexo);
-        }
+{{-- TABELA --}}
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead style="background:#f8fafc;">
+                    <tr>
+                        <th class="ps-4 py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Social ID</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Nome</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Sexo</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Município</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Contacto</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Estado</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Recibos 1-4</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Total Recebido</th>
+                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Acções</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($beneficiarios as $b)
+                    <tr>
+                        <td class="ps-4 py-3 text-muted" style="font-size:13px;">{{ $b->social_id }}</td>
+                        <td class="py-3 fw-semibold">{{ $b->nome }}</td>
+                        <td class="py-3">
+                            @if($b->sexo == 'M')
+                                <span class="badge" style="background:#eff6ff; color:#3b82f6;">M</span>
+                            @elseif($b->sexo == 'F')
+                                <span class="badge" style="background:#fdf2f8; color:#ec4899;">F</span>
+                            @else
+                                <span class="text-muted">—</span>
+                            @endif
+                        </td>
+                        <td class="py-3 text-muted">{{ $b->municipio }}</td>
+                        <td class="py-3 text-muted">{{ $b->contacto ?? '—' }}</td>
+                        <td class="py-3">
+                            @if($b->pago == 1)
+                                <span class="badge" style="background:#f0fdf4; color:#16a34a; font-weight:600;">Pago</span>
+                            @elseif($b->pago == 0)
+                                <span class="badge" style="background:#fff1f2; color:#dc2626; font-weight:600;">Não Pago</span>
+                            @else
+                                <span class="badge" style="background:#fffbeb; color:#d97706; font-weight:600;">Nunca</span>
+                            @endif
+                        </td>
+                        {{-- NOVA COLUNA: ESTADO DE REC1 A REC4 --}}
+                        <td class="py-3">
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach([1, 2, 3, 4] as $n)
+                                    @php $valorRec = $b->{'rec' . $n}; @endphp
+                                    @if($valorRec > 0)
+                                        <span class="badge" style="background:#f0fdf4; color:#16a34a; font-weight:600;" title="Rec{{ $n }}">
+                                            R{{ $n }}: {{ number_format($valorRec, 0, ',', '.') }}
+                                        </span>
+                                    @else
+                                        <span class="badge" style="background:#fff1f2; color:#dc2626; font-weight:600;" title="Rec{{ $n }} ausente">
+                                            R{{ $n }}: Ausente
+                                        </span>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </td>
+                        <td class="py-3 fw-semibold" style="color:#0f172a;">
+                            {{ number_format($b->rec1 + $b->rec2 + $b->rec3 + $b->rec4 + $b->rec5 + $b->rec6, 0, ',', '.') }} Kz
+                        </td>
+                        <td class="py-3">
+                            <a href="{{ url('/beneficiarios/' . $b->id) }}" class="btn btn-sm" style="background:#eff6ff; color:#3b82f6; border:none; font-weight:600; font-size:12px;">
+                                <i class="bi bi-eye-fill"></i> Ver
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox" style="font-size:32px; display:block; margin-bottom:8px;"></i>
+                            Nenhum beneficiário encontrado.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-        $perPage       = in_array($request->per_page, [25, 50, 100]) ? $request->per_page : 25;
-        $beneficiarios = $query->orderBy('nome')->paginate($perPage)->withQueryString();
+{{-- PAGINAÇÃO --}}
+<div class="d-flex justify-content-center mt-4">
+    {{ $beneficiarios->links() }}
+</div>
 
-        $municipios = Beneficiario::select('municipio')
-            ->distinct()
-            ->orderBy('municipio')
-            ->pluck('municipio');
+@endsection
 
-        $bairros = Beneficiario::select('bairro')
-            ->whereNotNull('bairro')
-            ->distinct()
-            ->orderBy('bairro')
-            ->pluck('bairro');
+@push('scripts')
+<script>
+    const inputNome = document.getElementById('input-nome');
+    const lista     = document.getElementById('autocomplete-list');
+    let timeoutId   = null;
 
-        return view('kwenda.beneficiarios.index', compact('beneficiarios', 'municipios', 'bairros'));
-    }
+    inputNome.addEventListener('input', function () {
+        const termo = this.value.trim();
+        clearTimeout(timeoutId);
+        fecharLista();
 
-    // ================= AUTOCOMPLETE — respeita filtros activos =================
-    public function sugestoes(Request $request)
-    {
-        $termo = $request->get('nome', '');
+        if (termo.length < 1) return;
 
-        if (strlen($termo) < 1) {
-            return response()->json([]);
-        }
+        timeoutId = setTimeout(() => {
+            const form    = document.getElementById('form-filtro');
+            const filtros = new URLSearchParams(new FormData(form));
+            filtros.set('nome', termo);
 
-        $query = Beneficiario::where('nome', 'like', $termo . '%');
+            fetch(`/beneficiarios/sugestoes?${filtros.toString()}`)
+                .then(res => res.json())
+                .then(nomes => {
+                    fecharLista();
+                    if (!nomes.length) return;
 
-        if ($request->filled('municipio')) $query->where('municipio', $request->municipio);
-        if ($request->filled('bairro'))    $query->where('bairro', $request->bairro);
-        if ($request->filled('pago'))      $query->where('pago', $request->pago);
-        if ($request->filled('sexo'))      $query->where('sexo', $request->sexo);
+                    nomes.forEach(nome => {
+                        const li = document.createElement('li');
+                        li.textContent = nome;
+                        li.style.cssText = `
+                            padding: 8px 14px;
+                            cursor: pointer;
+                            font-size: 13px;
+                            color: #0f172a;
+                            transition: background 0.1s;
+                        `;
+                        li.addEventListener('mouseenter', () => li.style.background = '#f1f5f9');
+                        li.addEventListener('mouseleave', () => li.style.background = '');
+                        li.addEventListener('mousedown', () => {
+                            inputNome.value = nome;
+                            fecharLista();
+                            setTimeout(() => {
+                                document.getElementById('form-filtro').submit();
+                            }, 50);
+                        });
+                        lista.appendChild(li);
+                    });
 
-        $nomes = $query->orderBy('nome')->limit(10)->pluck('nome');
+                    lista.style.display = 'block';
+                });
+        }, 300);
+    });
 
-        return response()->json($nomes);
-    }
+    document.addEventListener('click', function (e) {
+        if (!inputNome.contains(e.target)) fecharLista();
+    });
 
-    // ================= BAIRROS POR MUNICÍPIO =================
-    public function bairrosPorMunicipio(Request $request)
-    {
-        $municipio = $request->municipio;
+    inputNome.addEventListener('keydown', function (e) {
+        const items = lista.querySelectorAll('li');
+        let active  = lista.querySelector('li.ativo');
 
-        $bairros = Beneficiario::select('bairro')
-            ->whereNotNull('bairro')
-            ->when($municipio, function($q) use ($municipio) {
-                $q->where('municipio', $municipio);
-            })
-            ->distinct()
-            ->orderBy('bairro')
-            ->pluck('bairro');
-
-        return response()->json($bairros);
-    }
-
-    public function exportar(Request $request)
-    {
-        $filtros     = $request->only(['nome', 'social_id', 'municipio', 'bairro', 'pago', 'sexo']);
-        $nomeArquivo = 'beneficiarios_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
-
-        return Excel::download(new BeneficiariosExport($filtros), $nomeArquivo);
-    }
-
-    public function create() {}
-    public function store(Request $request) {}
-
-    public function show(Beneficiario $beneficiario)
-    {
-        return view('kwenda.beneficiarios.show', compact('beneficiario'));
-    }
-
-    // ================= EDITAR — COM VERIFICAÇÃO DE PERMISSÃO =================
-    public function edit(Beneficiario $beneficiario)
-    {
-        // Verificar permissão
-        if (!auth()->user()->can('editar')) {
-            return redirect()->back()->with('error', 'Não tens permissões para editar.');
-        }
-
-        return view('kwenda.beneficiarios.edit', compact('beneficiario'));
-    }
-
-    // ================= GUARDAR — COM VERIFICAÇÃO DE PERMISSÃO =================
-    public function update(Request $request, Beneficiario $beneficiario)
-    {
-        // Verificar permissão
-        if (!auth()->user()->can('editar')) {
-            return redirect()->back()->with('error', 'Não tens permissões para editar.');
-        }
-
-        $request->validate([
-            'nome'        => 'nullable|string|max:255',
-            'sexo'        => 'nullable|in:M,F',
-            'data_nasc'   => 'nullable|date',
-            'profissao'   => 'nullable|string|max:255',
-            'provincia'   => 'nullable|string|max:255',
-            'municipio'   => 'nullable|string|max:255',
-            'comuna'      => 'nullable|string|max:255',
-            'bairro'      => 'nullable|string|max:255',
-            'contacto'    => 'nullable|string|max:255',
-            'card_id'     => 'nullable|string|max:255',
-            'agente'      => 'nullable|string|max:255',
-            'pago'        => 'nullable|in:0,1,2',
-            'observacoes' => 'nullable|string',
-        ]);
-
-        $beneficiario->update($request->all());
-
-        return redirect()->route('beneficiarios.show', $beneficiario)
-            ->with('success', 'Beneficiário actualizado com sucesso!');
-    }
-
-    // ================= ELIMINAR — COM VERIFICAÇÃO DE PERMISSÃO =================
-    public function destroy(Beneficiario $beneficiario)
-    {
-        // Verificar permissão
-        if (!auth()->user()->can('eliminar')) {
-            return redirect()->back()->with('error', 'Não tens permissões para eliminar.');
-        }
-
-        $beneficiario->delete();
-
-        return redirect()->route('beneficiarios.index')
-            ->with('success', 'Beneficiário eliminado com sucesso!');
-    }
-
-    // ================= DASHBOARD =================
-    public function dashboard()
-    {
-        $total      = Beneficiario::count();
-        $pagos      = Beneficiario::where('pago', 1)->count();
-        $naoPagos   = Beneficiario::where('pago', 0)->count();
-        $nuncaPagos = Beneficiario::where('pago', 2)->count();
-        $masculino  = Beneficiario::where('sexo', 'M')->count();
-        $feminino   = Beneficiario::where('sexo', 'F')->count();
-
-        $valorTotal = Beneficiario::selectRaw('
-            SUM(rec1 + rec2 + rec3 + rec4 + rec5 + rec6) as total
-        ')->value('total');
-
-        $porMunicipio = Beneficiario::selectRaw('municipio, COUNT(*) as total')
-            ->groupBy('municipio')
-            ->orderByDesc('total')
-            ->pluck('total', 'municipio');
-
-        $bairros = Beneficiario::select('bairro')
-            ->whereNotNull('bairro')
-            ->distinct()
-            ->count();
-
-        return view('kwenda.dashboard', compact(
-            'total', 'pagos', 'naoPagos', 'nuncaPagos',
-            'masculino', 'feminino', 'valorTotal', 'porMunicipio', 'bairros'
-        ));
-    }
-
-    // ================= DASHBOARD FILTROS (AJAX) =================
-    public function dashboardFiltros(Request $request)
-    {
-        $municipio = $request->municipio;
-        $ano       = $request->ano;
-
-        $queryBase = Beneficiario::query();
-        if ($municipio) {
-            $queryBase->where('municipio', $municipio);
-        }
-
-        $total      = (clone $queryBase)->count();
-        $pagos      = (clone $queryBase)->where('pago', 1)->count();
-        $naoPagos   = (clone $queryBase)->where('pago', 0)->count();
-        $nuncaPagos = (clone $queryBase)->where('pago', 2)->count();
-        $masculino  = (clone $queryBase)->where('sexo', 'M')->count();
-        $feminino   = (clone $queryBase)->where('sexo', 'F')->count();
-        $valorTotal = (clone $queryBase)->selectRaw('SUM(rec1+rec2+rec3+rec4+rec5+rec6) as total')->value('total');
-        $bairros    = (clone $queryBase)->whereNotNull('bairro')->distinct('bairro')->count('bairro');
-
-        $queryMunicipio = Beneficiario::query();
-        if ($municipio) {
-            $queryMunicipio->where('municipio', $municipio);
-        }
-        if ($ano) {
-            $queryMunicipio->where(function($q) use ($ano) {
-                for ($i = 1; $i <= 6; $i++) {
-                    $q->orWhereYear('data' . $i, $ano);
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (!active) {
+                items[0]?.classList.add('ativo');
+                items[0] && (items[0].style.background = '#f1f5f9');
+            } else {
+                const next = active.nextElementSibling;
+                if (next) {
+                    active.classList.remove('ativo');
+                    active.style.background = '';
+                    next.classList.add('ativo');
+                    next.style.background = '#f1f5f9';
                 }
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (active) {
+                const prev = active.previousElementSibling;
+                active.classList.remove('ativo');
+                active.style.background = '';
+                if (prev) {
+                    prev.classList.add('ativo');
+                    prev.style.background = '#f1f5f9';
+                }
+            }
+        } else if (e.key === 'Enter') {
+            if (active) {
+                e.preventDefault();
+                inputNome.value = active.textContent;
+                fecharLista();
+                setTimeout(() => {
+                    document.getElementById('form-filtro').submit();
+                }, 50);
+            }
+        } else if (e.key === 'Escape') {
+            fecharLista();
+        }
+    });
+
+    function fecharLista() {
+        lista.innerHTML = '';
+        lista.style.display = 'none';
+    }
+
+    // ===== BAIRROS POR MUNICÍPIO =====
+    const selectMunicipio = document.getElementById('select-municipio');
+    const selectBairro    = document.getElementById('select-bairro');
+    const bairroActivo    = "{{ request('bairro') }}";
+
+    selectMunicipio.addEventListener('change', function() {
+        const municipio = this.value;
+        selectBairro.innerHTML = '<option value="">A carregar...</option>';
+        selectBairro.disabled = true;
+
+        fetch(`/bairros-por-municipio?municipio=${encodeURIComponent(municipio)}`)
+            .then(res => res.json())
+            .then(bairros => {
+                selectBairro.innerHTML = '<option value="">Todos os bairros</option>';
+                bairros.forEach(bairro => {
+                    const opt = document.createElement('option');
+                    opt.value = bairro;
+                    opt.textContent = bairro;
+                    if (bairro === bairroActivo) opt.selected = true;
+                    selectBairro.appendChild(opt);
+                });
+                selectBairro.disabled = false;
             });
-        }
-
-        $porMunicipio = $queryMunicipio
-            ->selectRaw('municipio, COUNT(*) as total')
-            ->groupBy('municipio')
-            ->orderByDesc('total')
-            ->pluck('total', 'municipio');
-
-        return response()->json([
-            'total'        => $total,
-            'pagos'        => $pagos,
-            'naoPagos'     => $naoPagos,
-            'nuncaPagos'   => $nuncaPagos,
-            'masculino'    => $masculino,
-            'feminino'     => $feminino,
-            'valorTotal'   => $valorTotal,
-            'porMunicipio' => $porMunicipio,
-            'bairros'      => $bairros,
-        ]);
-    }
-
-    // ================= RECORRÊNCIAS (AJAX) =================
-    public function recorrenciasMunicipio(Request $request)
-    {
-        $municipio = $request->municipio;
-        $ano       = $request->ano;
-
-        $query = Beneficiario::query();
-        if ($municipio) {
-            $query->where('municipio', $municipio);
-        }
-
-        $recorrencias = [];
-        for ($i = 1; $i <= 6; $i++) {
-            $q = clone $query;
-            $q->where('rec' . $i, '>', 0);
-            if ($ano) {
-                $q->whereYear('data' . $i, $ano);
-            }
-            $recorrencias['Rec ' . $i] = $q->count();
-        }
-
-        $anos = [];
-        for ($i = 1; $i <= 6; $i++) {
-            $anosDaRec = Beneficiario::selectRaw('YEAR(data' . $i . ') as ano')
-                ->whereNotNull('data' . $i)
-                ->whereRaw('YEAR(data' . $i . ') BETWEEN 2000 AND 2030')
-                ->groupBy('ano')
-                ->orderBy('ano')
-                ->pluck('ano')
-                ->toArray();
-            $anos = array_merge($anos, $anosDaRec);
-        }
-        $anos = array_unique(array_filter($anos));
-        sort($anos);
-
-        return response()->json([
-            'recorrencias' => $recorrencias,
-            'anos'         => array_values($anos),
-        ]);
-    }
-
-    // ================= IMPORTAÇÃO EXCEL — COM VERIFICAÇÃO DE PERMISSÃO =================
-    public function importar(Request $request)
-    {
-        // Verificar permissão
-        if (!auth()->user()->can('importar')) {
-            return redirect()->back()->with('error', 'Não tens permissões para importar.');
-        }
-
-        set_time_limit(0);
-        ini_set('memory_limit', '2048M');
-
-        $request->validate(['file' => 'required|mimes:xlsx,xls']);
-
-        $import = new BeneficiariosImport;
-
-        try {
-            Excel::import($import, $request->file('file'));
-
-            $falhas   = count($import->failures());
-            $erros    = count($import->errors());
-            $mensagem = 'Importação concluída com sucesso!';
-
-            if ($falhas > 0 || $erros > 0) {
-                $mensagem .= " (Atenção: {$falhas} linha(s) com falha e {$erros} erro(s) ignorado(s))";
-            }
-
-            return back()->with('success', $mensagem);
-
-        } catch (\Exception $e) {
-            \Log::error('Erro na importação: ' . $e->getMessage());
-            return back()->with('error', 'Erro ao importar: ' . $e->getMessage());
-        }
-    }
-
-    // ================= FUNÇÕES AUXILIARES =================
-    private function convertPago($valor)
-    {
-        $valor = strtolower(trim($valor));
-        if ($valor == 'sim')                    return 1;
-        if ($valor == 'não' || $valor == 'nao') return 0;
-        if ($valor == 'nunca')                  return 2;
-        return 0;
-    }
-
-    private function convertValor($valor)
-    {
-        if (empty($valor)) return 0;
-        $valor = str_replace(['.', ','], '', $valor);
-        return is_numeric($valor) ? (int)$valor : 0;
-    }
-
-    private function formatarData($valor)
-    {
-        try {
-            if (empty($valor)) return null;
-            return \Carbon\Carbon::parse($valor)->format('Y-m-d');
-        } catch (\Exception $e) {
-            return null;
-        }
-    }
-
-    private function utf8($valor)
-    {
-        if (empty($valor)) return null;
-        return mb_convert_encoding($valor, 'UTF-8', 'ISO-8859-1');
-    }
-}
+    });
+</script>
+@endpush
