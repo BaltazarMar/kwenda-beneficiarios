@@ -103,6 +103,8 @@
                         <option value="0" {{ request('pago') === '0' ? 'selected' : '' }}>Não Pago</option>
                         <option value="2" {{ request('pago') === '2' ? 'selected' : '' }}>Nunca Pago</option>
                     </select>
+
+                    
                 </div>
 
                 {{-- NOVO FILTRO: RECIBOS AUSENTES --}}
@@ -119,6 +121,7 @@
                     </select>
                 </div>
 
+                
                 <div class="col-12 col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-primary btn-sm w-100">
                         <i class="bi bi-search"></i> Filtrar
@@ -145,7 +148,6 @@
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Município</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Contacto</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Estado</th>
-                        <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Recibos 1-4</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Total Recebido</th>
                         <th class="py-3" style="font-size:12px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Acções</th>
                     </tr>
@@ -175,23 +177,6 @@
                                 <span class="badge" style="background:#fffbeb; color:#d97706; font-weight:600;">Nunca</span>
                             @endif
                         </td>
-                        {{-- NOVA COLUNA: ESTADO DE REC1 A REC4 --}}
-                        <td class="py-3">
-                            <div class="d-flex flex-wrap gap-1">
-                                @foreach([1, 2, 3, 4] as $n)
-                                    @php $valorRec = $b->{'rec' . $n}; @endphp
-                                    @if($valorRec > 0)
-                                        <span class="badge" style="background:#f0fdf4; color:#16a34a; font-weight:600;" title="Rec{{ $n }}">
-                                            R{{ $n }}: {{ number_format($valorRec, 0, ',', '.') }}
-                                        </span>
-                                    @else
-                                        <span class="badge" style="background:#fff1f2; color:#dc2626; font-weight:600;" title="Rec{{ $n }} ausente">
-                                            R{{ $n }}: Ausente
-                                        </span>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </td>
                         <td class="py-3 fw-semibold" style="color:#0f172a;">
                             {{ number_format($b->rec1 + $b->rec2 + $b->rec3 + $b->rec4 + $b->rec5 + $b->rec6, 0, ',', '.') }} Kz
                         </td>
@@ -203,7 +188,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="text-center text-muted py-5">
+                        <td colspan="8" class="text-center text-muted py-5">
                             <i class="bi bi-inbox" style="font-size:32px; display:block; margin-bottom:8px;"></i>
                             Nenhum beneficiário encontrado.
                         </td>
@@ -236,6 +221,7 @@
         if (termo.length < 1) return;
 
         timeoutId = setTimeout(() => {
+            // Envia os filtros activos junto com o nome
             const form    = document.getElementById('form-filtro');
             const filtros = new URLSearchParams(new FormData(form));
             filtros.set('nome', termo);
