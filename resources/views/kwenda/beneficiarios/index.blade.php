@@ -4,6 +4,48 @@
 
 @section('content')
 
+<style>
+    .multi-filtro { position: relative; }
+    .multi-filtro .multi-botao {
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+    }
+    .multi-filtro .multi-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 100%;
+        width: max-content;
+        max-width: 280px;
+        z-index: 1050;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 10px;
+        max-height: 260px;
+        overflow-y: auto;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .multi-filtro.aberto .multi-menu { display: block; }
+    .multi-filtro .multi-limpar {
+        display: block;
+        font-size: 11px;
+        color: #3b82f6;
+        text-decoration: none;
+        margin-bottom: 6px;
+    }
+</style>
+
+@php
+    $municipiosSel = array_map('strval', (array) request('municipio', []));
+    $bairrosSel    = array_map('strval', (array) request('bairro', []));
+    $pagoSel       = array_map('strval', (array) request('pago', []));
+@endphp
+
 {{-- TOPO --}}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
@@ -15,7 +57,9 @@
     <div class="d-flex gap-2 align-items-center">
         <form method="GET" action="{{ url('/beneficiarios') }}" id="form-perpage" class="d-flex align-items-center gap-2">
             @foreach(request()->except('per_page') as $key => $value)
-                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @foreach((array) $value as $v)
+                    <input type="hidden" name="{{ $key }}{{ is_array($value) ? '[]' : '' }}" value="{{ $v }}">
+                @endforeach
             @endforeach
             <select name="per_page" class="form-select form-select-sm w-auto" onchange="document.getElementById('form-perpage').submit()">
                 <option value="25"  {{ request('per_page', 25) == 25  ? 'selected' : '' }}>25</option>
@@ -36,7 +80,7 @@
             <div class="row g-2 align-items-end">
 
                 {{-- CAMPO NOME COM AUTOCOMPLETE --}}
-                <div class="col-12 col-md-3">
+                <div class="col-12 col-md-2">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Nome</label>
                     <div style="position:relative;">
                         <input
@@ -73,41 +117,77 @@
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Social ID</label>
                     <input type="text" name="social_id" class="form-control form-control-sm" placeholder="Social ID" value="{{ request('social_id') }}">
                 </div>
+
+                {{-- MUNICÍPIO (MÚLTIPLO) --}}
                 <div class="col-6 col-md-2">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Município</label>
-                    <select name="municipio" id="select-municipio" class="form-select form-select-sm">
-                        <option value="">Todos os municípios</option>
-                        @foreach($municipios as $municipio)
-                            <option value="{{ $municipio }}" {{ request('municipio') == $municipio ? 'selected' : '' }}>
-                                {{ $municipio }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="multi-filtro" id="multi-municipio" data-rotulo="Todos os municípios">
+                        <button type="button" class="form-select form-select-sm multi-botao">
+                            <span class="multi-rotulo">Todos os municípios</span>
+                        </button>
+                        <div class="multi-menu">
+                            <a href="#" class="multi-limpar">Limpar seleção</a>
+                            <div class="multi-opcoes">
+                                @foreach($municipios as $municipio)
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="municipio[]"
+                                               value="{{ $municipio }}" id="mun-{{ $loop->index }}"
+                                               {{ in_array((string) $municipio, $municipiosSel, true) ? 'checked' : '' }}>
+                                        <label class="form-check-label" style="font-size:13px;" for="mun-{{ $loop->index }}">{{ $municipio }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                {{-- BAIRRO (MÚLTIPLO) --}}
                 <div class="col-6 col-md-2">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Bairro</label>
-                    <select name="bairro" id="select-bairro" class="form-select form-select-sm">
-                        <option value="">Todos os bairros</option>
-                        @foreach($bairros as $bairro)
-                            <option value="{{ $bairro }}" {{ request('bairro') == $bairro ? 'selected' : '' }}>
-                                {{ $bairro }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="multi-filtro" id="multi-bairro" data-rotulo="Todos os bairros">
+                        <button type="button" class="form-select form-select-sm multi-botao">
+                            <span class="multi-rotulo">Todos os bairros</span>
+                        </button>
+                        <div class="multi-menu">
+                            <a href="#" class="multi-limpar">Limpar seleção</a>
+                            <div class="multi-opcoes">
+                                @foreach($bairros as $bairro)
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="bairro[]"
+                                               value="{{ $bairro }}" id="bai-{{ $loop->index }}"
+                                               {{ in_array((string) $bairro, $bairrosSel, true) ? 'checked' : '' }}>
+                                        <label class="form-check-label" style="font-size:13px;" for="bai-{{ $loop->index }}">{{ $bairro }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-6 col-md-1">
+
+                {{-- ESTADO (MÚLTIPLO) --}}
+                <div class="col-6 col-md-2">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Estado</label>
-                    <select name="pago" class="form-select form-select-sm">
-                        <option value="">Todos</option>
-                        <option value="1" {{ request('pago') === '1' ? 'selected' : '' }}>Pago</option>
-                        <option value="0" {{ request('pago') === '0' ? 'selected' : '' }}>Não Pago</option>
-                        <option value="2" {{ request('pago') === '2' ? 'selected' : '' }}>Nunca Pago</option>
-                    </select>
-
-                    
+                    <div class="multi-filtro" id="multi-pago" data-rotulo="Todos">
+                        <button type="button" class="form-select form-select-sm multi-botao">
+                            <span class="multi-rotulo">Todos</span>
+                        </button>
+                        <div class="multi-menu">
+                            <a href="#" class="multi-limpar">Limpar seleção</a>
+                            <div class="multi-opcoes">
+                                @foreach(['1' => 'Pago', '0' => 'Não Pago', '2' => 'Nunca Pago'] as $valor => $rotulo)
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="pago[]"
+                                               value="{{ $valor }}" id="pago-{{ $valor }}"
+                                               {{ in_array((string) $valor, $pagoSel, true) ? 'checked' : '' }}>
+                                        <label class="form-check-label" style="font-size:13px;" for="pago-{{ $valor }}">{{ $rotulo }}</label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {{-- NOVO FILTRO: RECIBOS AUSENTES --}}
+                {{-- FILTRO: RECIBOS AUSENTES --}}
                 <div class="col-6 col-md-2">
                     <label class="form-label fw-semibold" style="font-size:12px; color:#64748b;">Recibos</label>
                     <select name="recibo" class="form-select form-select-sm">
@@ -121,7 +201,6 @@
                     </select>
                 </div>
 
-                
                 <div class="col-12 col-md-2 d-flex gap-2">
                     <button type="submit" class="btn btn-primary btn-sm w-100">
                         <i class="bi bi-search"></i> Filtrar
@@ -221,7 +300,7 @@
         if (termo.length < 1) return;
 
         timeoutId = setTimeout(() => {
-            // Envia os filtros activos junto com o nome
+            // Envia os filtros activos (incluindo seleções múltiplas) junto com o nome
             const form    = document.getElementById('form-filtro');
             const filtros = new URLSearchParams(new FormData(form));
             filtros.set('nome', termo);
@@ -311,29 +390,98 @@
         lista.style.display = 'none';
     }
 
-    // ===== BAIRROS POR MUNICÍPIO =====
-    const selectMunicipio = document.getElementById('select-municipio');
-    const selectBairro    = document.getElementById('select-bairro');
-    const bairroActivo    = "{{ request('bairro') }}";
+    // ===== DROPDOWNS DE SELEÇÃO MÚLTIPLA =====
+    const caixas = document.querySelectorAll('.multi-filtro');
 
-    selectMunicipio.addEventListener('change', function() {
-        const municipio = this.value;
-        selectBairro.innerHTML = '<option value="">A carregar...</option>';
-        selectBairro.disabled = true;
+    function atualizarRotulo(caixa) {
+        const marcados = caixa.querySelectorAll('input[type=checkbox]:checked');
+        const rotulo   = caixa.querySelector('.multi-rotulo');
 
-        fetch(`/bairros-por-municipio?municipio=${encodeURIComponent(municipio)}`)
+        if (marcados.length === 0) {
+            rotulo.textContent = caixa.dataset.rotulo;
+        } else if (marcados.length === 1) {
+            rotulo.textContent = marcados[0].nextElementSibling.textContent.trim();
+        } else {
+            rotulo.textContent = marcados.length + ' selecionados';
+        }
+    }
+
+    caixas.forEach(caixa => {
+        atualizarRotulo(caixa);
+
+        // Abrir / fechar
+        caixa.querySelector('.multi-botao').addEventListener('click', function (e) {
+            e.stopPropagation();
+            const estavaAberta = caixa.classList.contains('aberto');
+            caixas.forEach(c => c.classList.remove('aberto'));
+            if (!estavaAberta) caixa.classList.add('aberto');
+        });
+
+        // Não fechar ao clicar dentro do menu
+        caixa.querySelector('.multi-menu').addEventListener('click', e => e.stopPropagation());
+
+        // Atualizar rótulo ao marcar/desmarcar
+        caixa.addEventListener('change', function () {
+            atualizarRotulo(caixa);
+            if (caixa.id === 'multi-municipio') carregarBairros();
+        });
+
+        // Limpar seleção
+        caixa.querySelector('.multi-limpar').addEventListener('click', function (e) {
+            e.preventDefault();
+            caixa.querySelectorAll('input[type=checkbox]').forEach(i => i.checked = false);
+            atualizarRotulo(caixa);
+            if (caixa.id === 'multi-municipio') carregarBairros();
+        });
+    });
+
+    // Fechar ao clicar fora
+    document.addEventListener('click', () => caixas.forEach(c => c.classList.remove('aberto')));
+
+    // ===== BAIRROS DOS MUNICÍPIOS SELECIONADOS =====
+    const caixaMunicipio = document.getElementById('multi-municipio');
+    const caixaBairro    = document.getElementById('multi-bairro');
+    const opcoesBairro   = caixaBairro.querySelector('.multi-opcoes');
+
+    function carregarBairros() {
+        const params = new URLSearchParams();
+        caixaMunicipio.querySelectorAll('input:checked').forEach(i => params.append('municipio[]', i.value));
+
+        // Guarda os bairros já marcados para manter os que continuam disponíveis
+        const marcados = new Set(
+            Array.from(caixaBairro.querySelectorAll('input:checked')).map(i => i.value)
+        );
+
+        opcoesBairro.innerHTML = '<span class="text-muted" style="font-size:12px;">A carregar...</span>';
+
+        fetch(`/bairros-por-municipio?${params.toString()}`)
             .then(res => res.json())
             .then(bairros => {
-                selectBairro.innerHTML = '<option value="">Todos os bairros</option>';
-                bairros.forEach(bairro => {
-                    const opt = document.createElement('option');
-                    opt.value = bairro;
-                    opt.textContent = bairro;
-                    if (bairro === bairroActivo) opt.selected = true;
-                    selectBairro.appendChild(opt);
+                opcoesBairro.innerHTML = '';
+                bairros.forEach((bairro, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'form-check';
+
+                    const input = document.createElement('input');
+                    input.className = 'form-check-input';
+                    input.type = 'checkbox';
+                    input.name = 'bairro[]';
+                    input.value = bairro;
+                    input.id = 'bai-' + idx;
+                    input.checked = marcados.has(bairro);
+
+                    const label = document.createElement('label');
+                    label.className = 'form-check-label';
+                    label.style.fontSize = '13px';
+                    label.htmlFor = input.id;
+                    label.textContent = bairro;
+
+                    div.appendChild(input);
+                    div.appendChild(label);
+                    opcoesBairro.appendChild(div);
                 });
-                selectBairro.disabled = false;
+                atualizarRotulo(caixaBairro);
             });
-    });
+    }
 </script>
 @endpush

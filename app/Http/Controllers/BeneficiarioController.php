@@ -10,6 +10,17 @@ use App\Exports\BeneficiariosExport;
 
 class BeneficiarioController extends Controller
 {
+    // ================= HELPER: filtros de seleção múltipla =================
+    // Aceita valor único (?municipio=X) ou vários (?municipio[]=X&municipio[]=Y).
+    // Só descarta null e '' (o valor '0' de "Não pago" tem de ser mantido).
+    private function filtroLista(Request $request, string $campo): array
+    {
+        return array_values(array_filter(
+            (array) $request->input($campo, []),
+            fn ($v) => $v !== null && $v !== ''
+        ));
+    }
+
     // ================= BENEFICIÁRIOS =================
     public function index(Request $request)
     {
@@ -23,23 +34,26 @@ class BeneficiarioController extends Controller
             $query->where('social_id', $request->social_id);
         }
 
-        if ($request->filled('municipio')) {
-            $query->where('municipio', $request->municipio);
+        // MÚLTIPLO: município
+        if ($municipiosSel = $this->filtroLista($request, 'municipio')) {
+            $query->whereIn('municipio', $municipiosSel);
         }
 
-        if ($request->filled('bairro')) {
-            $query->where('bairro', $request->bairro);
+        // MÚLTIPLO: bairro
+        if ($bairrosSel = $this->filtroLista($request, 'bairro')) {
+            $query->whereIn('bairro', $bairrosSel);
         }
 
-        if ($request->filled('pago') && $request->pago !== '') {
-            $query->where('pago', $request->pago);
+        // MÚLTIPLO: estado (pago)
+        if (($pagoSel = $this->filtroLista($request, 'pago')) !== []) {
+            $query->whereIn('pago', $pagoSel);
         }
 
         if ($request->filled('sexo')) {
             $query->where('sexo', $request->sexo);
         }
 
-        // NOVO: filtro de recibos ausentes
+        // Filtro de recibos ausentes
         if ($request->filled('recibo')) {
             if ($request->recibo === 'rec12_ausente') {
                 $query->where(function ($q) {
@@ -64,8 +78,12 @@ class BeneficiarioController extends Controller
             ->orderBy('municipio')
             ->pluck('municipio');
 
+        // Bairros: se houver municípios selecionados, mostra só os bairros deles
         $bairros = Beneficiario::select('bairro')
             ->whereNotNull('bairro')
+            ->when($municipiosSel, function ($q) use ($municipiosSel) {
+                $q->whereIn('municipio', $municipiosSel);
+            })
             ->distinct()
             ->orderBy('bairro')
             ->pluck('bairro');
@@ -84,12 +102,12 @@ class BeneficiarioController extends Controller
 
         $query = Beneficiario::where('nome', 'like', $termo . '%');
 
-        if ($request->filled('municipio')) $query->where('municipio', $request->municipio);
-        if ($request->filled('bairro'))    $query->where('bairro', $request->bairro);
-        if ($request->filled('pago'))      $query->where('pago', $request->pago);
-        if ($request->filled('sexo'))      $query->where('sexo', $request->sexo);
+        if ($municipiosSel = $this->filtroLista($request, 'municipio')) $query->whereIn('municipio', $municipiosSel);
+        if ($bairrosSel = $this->filtroLista($request, 'bairro'))       $query->whereIn('bairro', $bairrosSel);
+        if (($pagoSel = $this->filtroLista($request, 'pago')) !== [])   $query->whereIn('pago', $pagoSel);
+        if ($request->filled('sexo'))                                   $query->where('sexo', $request->sexo);
 
-        // NOVO: filtro de recibos ausentes
+        // Filtro de recibos ausentes
         if ($request->filled('recibo')) {
             if ($request->recibo === 'rec12_ausente') {
                 $query->where(function ($q) { $q->whereNull('rec1')->orWhere('rec1', 0); })
@@ -105,15 +123,16 @@ class BeneficiarioController extends Controller
         return response()->json($nomes);
     }
 
-    // ================= BAIRROS POR MUNICÍPIO =================
+    // ================= BAIRROS POR MUNICÍPIO(S) =================
+    // Aceita ?municipio=X ou ?municipio[]=X&municipio[]=Y
     public function bairrosPorMunicipio(Request $request)
     {
-        $municipio = $request->municipio;
+        $municipios = $this->filtroLista($request, 'municipio');
 
         $bairros = Beneficiario::select('bairro')
             ->whereNotNull('bairro')
-            ->when($municipio, function($q) use ($municipio) {
-                $q->where('municipio', $municipio);
+            ->when($municipios, function ($q) use ($municipios) {
+                $q->whereIn('municipio', $municipios);
             })
             ->distinct()
             ->orderBy('bairro')
@@ -124,7 +143,7 @@ class BeneficiarioController extends Controller
 
     public function exportar(Request $request)
     {
-        // NOVO: 'recibo' incluído na lista de filtros exportados
+        // 'municipio', 'bairro' e 'pago' podem chegar como arrays
         $filtros     = $request->only(['nome', 'social_id', 'municipio', 'bairro', 'pago', 'sexo', 'recibo']);
         $nomeArquivo = 'beneficiarios_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
 
