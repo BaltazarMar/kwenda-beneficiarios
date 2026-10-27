@@ -371,11 +371,11 @@
                             <td>
                                 @if($sub['status'] === 'duplicado')
                                     <span class="status-badge status-dupli">
-                                        <i class="bi bi-x-circle-fill"></i> Duplicado
+                                        <i class="bi bi-x-circle-fill"></i> Duplicado{{ !empty($sub['encontrado_em']) ? ' (' . $sub['encontrado_em'] . ')' : '' }}
                                     </span>
                                 @elseif($sub['status'] === 'possivel')
                                     <span class="status-badge status-possivel">
-                                        <i class="bi bi-exclamation-triangle-fill"></i> Possível
+                                        <i class="bi bi-exclamation-triangle-fill"></i> Possível{{ !empty($sub['encontrado_em']) ? ' (' . $sub['encontrado_em'] . ')' : '' }}
                                     </span>
                                 @else
                                     <span class="status-badge status-novo">
