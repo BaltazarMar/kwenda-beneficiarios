@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Services\KoboToolboxService;
 use App\Models\Beneficiario;
+use App\Models\BeneficiarioUrbano;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -38,10 +40,10 @@ class KoboSyncController extends Controller
 
         $submissionsComStatus = collect($submissions)->map(function ($sub) use ($contagemNomeData, $contagemNome) {
 
-            // Verifica duplicado confirmado na base de dados
-            $statusBD = $this->verificarDuplicado($sub);
+            // Verifica duplicado confirmado nas bases de dados (Urbano + Rural)
+            [$statusBD, $onde] = $this->localizarDuplicado($sub);
             if ($statusBD === 'duplicado') {
-                return array_merge($sub, ['status' => 'duplicado']);
+                return array_merge($sub, ['status' => 'duplicado', 'encontrado_em' => $onde]);
             }
 
             // Chave Nome + Data
@@ -49,16 +51,21 @@ class KoboSyncController extends Controller
 
             // Se o mesmo Nome + Data aparece mais de uma vez nas submissões → Duplicado
             if ($contagemNomeData->get($chaveNomeData, 0) > 1) {
-                return array_merge($sub, ['status' => 'duplicado']);
+                return array_merge($sub, ['status' => 'duplicado', 'encontrado_em' => 'Kobo']);
+            }
+
+            // Possível duplicado na base de dados (só o nome coincide)
+            if ($statusBD === 'possivel') {
+                return array_merge($sub, ['status' => 'possivel', 'encontrado_em' => $onde]);
             }
 
             // Se apenas o Nome aparece mais de uma vez (datas diferentes) → Possível
             $chaveNome = strtolower(trim($sub['nome'] ?? ''));
             if ($contagemNome->get($chaveNome, 0) > 1) {
-                return array_merge($sub, ['status' => 'possivel']);
+                return array_merge($sub, ['status' => 'possivel', 'encontrado_em' => 'Kobo']);
             }
 
-            return array_merge($sub, ['status' => 'novo']);
+            return array_merge($sub, ['status' => 'novo', 'encontrado_em' => null]);
         })->toArray();
 
         $novos      = collect($submissionsComStatus)->where('status', 'novo')->count();
@@ -75,7 +82,7 @@ class KoboSyncController extends Controller
     }
 
     /**
-     * Importa apenas os beneficiários novos (sem duplicados)
+     * Importa apenas os beneficiários novos para o Kwenda Urbano
      */
     public function importar(Request $request)
     {
@@ -91,27 +98,37 @@ class KoboSyncController extends Controller
                     continue;
                 }
 
-                if (!empty($sub['kobo_id']) && Beneficiario::where('kobo_id', $sub['kobo_id'])->exists()) {
-                    $ignorados++;
-                    continue;
+                // Observação com os dados do Kobo que o urbano não tem em colunas próprias
+                $obs = collect([
+                    'Kobo',
+                    !empty($sub['tecnico'])     ? 'Técnico: ' . $sub['tecnico']         : null,
+                    !empty($sub['instituicao']) ? 'Instituição: ' . $sub['instituicao'] : null,
+                ])->filter()->implode(' | ');
+
+                $dataInscricao = null;
+                if (!empty($sub['data_submissao'])) {
+                    try {
+                        $dataInscricao = Carbon::parse($sub['data_submissao'])->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        $dataInscricao = null;
+                    }
                 }
 
-                Beneficiario::create([
-                    'kobo_id'               => $sub['kobo_id'],
-                    'nome'                  => $sub['nome'],
-                    'municipio'             => $sub['municipio'],
-                    'bairro'                => $sub['bairro'],
-                    'documento'             => $sub['documento'],
-                    'data_nasc'             => $sub['data_nascimento'],
-                    'genero'                => $sub['genero'],
-                    'contacto'              => $sub['telefone'],
-                    'categoria'             => $sub['categoria'],
-                    'tecnico'               => $sub['tecnico'],
-                    'instituicao'           => $sub['instituicao'],
-                    'municipio_instituicao' => $sub['municipio_instituicao'],
-                    'data_submissao'        => $sub['data_submissao'],
-                    'origem'                => 'kobo',
-                ]);
+                // forceFill: não depende do $fillable do modelo
+                $beneficiario = new BeneficiarioUrbano();
+                $beneficiario->forceFill([
+                    'nome'             => $sub['nome'] ?? null,
+                    'sexo'             => $sub['genero'] ?? null,
+                    'data_nascimento'  => $sub['data_nascimento'] ?? null,
+                    'numero_documento' => !empty($sub['documento']) ? trim($sub['documento']) : null,
+                    'telefone'         => $sub['telefone'] ?? null,
+                    'municipio'        => $sub['municipio'] ?? null,
+                    'bairro'           => $sub['bairro'] ?? null,
+                    'categoria'        => $sub['categoria'] ?? null,
+                    'data_inscricao'   => $dataInscricao,
+                    'pago'             => 'nao',
+                    'obs'              => $obs,
+                ])->save();
 
                 $importados++;
             }
@@ -119,7 +136,7 @@ class KoboSyncController extends Controller
             DB::commit();
 
             return redirect()->route('kobo.sync')->with('success',
-                "✅ Importação concluída! {$importados} novos beneficiários importados. {$ignorados} duplicados ignorados."
+                "✅ Importação concluída! {$importados} novos beneficiários importados para o Urbano. {$ignorados} duplicados ignorados."
             );
         } catch (\Exception $e) {
             DB::rollBack();
@@ -193,7 +210,9 @@ class KoboSyncController extends Controller
         $submissions = $this->kobo->getFormattedSubmissions();
 
         $submissionsComStatus = collect($submissions)->map(function ($sub) {
-            $sub['status'] = $this->verificarDuplicado($sub);
+            [$status, $onde] = $this->localizarDuplicado($sub);
+            $sub['status']        = $status;
+            $sub['encontrado_em'] = $onde;
             return $sub;
         })->toArray();
 
@@ -225,51 +244,64 @@ class KoboSyncController extends Controller
     }
 
     /**
-     * Verifica duplicados em 3 níveis:
-     * 1. Número de documento igual → duplicado confirmado
-     * 2. Nome + data de nascimento iguais → duplicado confirmado
-     * 3. Apenas nome igual → possível duplicado
+     * Devolve apenas o status: 'novo', 'possivel' ou 'duplicado'
      */
     private function verificarDuplicado(array $sub): string
     {
-        if (empty($sub['nome'])) {
-            return 'novo';
+        return $this->localizarDuplicado($sub)[0];
+    }
+
+    /**
+     * Compara a submissão com o Kwenda Urbano e com o Kwenda Rural.
+     * Devolve [status, onde] — onde = 'Urbano', 'Rural' ou null.
+     *
+     * 1. Nº de documento igual (só existe no Urbano)  → duplicado
+     * 2. Nome + data de nascimento iguais (Urbano ou Rural) → duplicado
+     * 3. Apenas nome igual (Urbano ou Rural) → possível
+     */
+    private function localizarDuplicado(array $sub): array
+    {
+        $nome = trim($sub['nome'] ?? '');
+        if ($nome === '') {
+            return ['novo', null];
         }
 
-        // 1. Verifica por número de documento
-        if (!empty($sub['documento'])) {
-            $duplicadoDocumento = Beneficiario::whereNotNull('documento')
-                ->where('documento', trim($sub['documento']))
+        $documento = trim((string) ($sub['documento'] ?? ''));
+        $data      = $sub['data_nascimento'] ?? null;
+
+        // 1. Documento — Urbano (o Rural não tem esta coluna)
+        if ($documento !== '' && BeneficiarioUrbano::where('numero_documento', $documento)->exists()) {
+            return ['duplicado', 'Urbano'];
+        }
+
+        // 2. Nome + data de nascimento
+        if (!empty($data)) {
+            $urbanoNomeData = BeneficiarioUrbano::whereRaw('LOWER(TRIM(nome)) = LOWER(TRIM(?))', [$nome])
+                ->where('data_nascimento', $data)
                 ->exists();
+            if ($urbanoNomeData) {
+                return ['duplicado', 'Urbano'];
+            }
 
-            if ($duplicadoDocumento) {
-                return 'duplicado';
+            $ruralNomeData = Beneficiario::whereRaw('LOWER(TRIM(nome)) = LOWER(TRIM(?))', [$nome])
+                ->where('data_nasc', $data)
+                ->exists();
+            if ($ruralNomeData) {
+                // Para tratar o Rural só como aviso, troca 'duplicado' por 'possivel'
+                return ['duplicado', 'Rural'];
             }
         }
 
-        // 2. Verifica por nome + data de nascimento
-        if (!empty($sub['data_nascimento'])) {
-            $duplicadoNomeData = Beneficiario::whereRaw(
-                'LOWER(TRIM(nome)) = LOWER(TRIM(?))', [trim($sub['nome'])]
-            )
-            ->where('data_nasc', $sub['data_nascimento'])
-            ->exists();
-
-            if ($duplicadoNomeData) {
-                return 'duplicado';
-            }
+        // 3. Apenas nome
+        if (BeneficiarioUrbano::whereRaw('LOWER(TRIM(nome)) = LOWER(TRIM(?))', [$nome])->exists()) {
+            return ['possivel', 'Urbano'];
         }
 
-        // 3. Verifica apenas por nome → possível duplicado
-        $possivel = Beneficiario::whereRaw(
-            'LOWER(TRIM(nome)) = LOWER(TRIM(?))', [trim($sub['nome'])]
-        )->exists();
-
-        if ($possivel) {
-            return 'possivel';
+        if (Beneficiario::whereRaw('LOWER(TRIM(nome)) = LOWER(TRIM(?))', [$nome])->exists()) {
+            return ['possivel', 'Rural'];
         }
 
-        return 'novo';
+        return ['novo', null];
     }
 
     public function eliminarIndividual(Request $request)
