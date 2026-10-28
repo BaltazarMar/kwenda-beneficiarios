@@ -6,8 +6,8 @@ use App\Exports\VerificacaoExport;
 use App\Models\BeneficiarioUrbano;
 use App\Services\VerificacaoExcelService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -43,16 +43,17 @@ class VerificarExcelController extends Controller
         try {
             $linhas    = $this->servico->lerFicheiro($ficheiro->getRealPath());
             $resultado = $this->servico->verificar($linhas);
+
+            $this->limparAntigos();
+
+            $token = (string) Str::uuid();
+            $this->guardar($token, [
+                'nome'   => $ficheiro->getClientOriginalName(),
+                'linhas' => $resultado,
+            ]);
         } catch (\Throwable $e) {
             return back()->with('error', '❌ ' . $e->getMessage());
         }
-
-        $token = (string) Str::uuid();
-
-        Cache::put("verificacao:{$token}", [
-            'nome'   => $ficheiro->getClientOriginalName(),
-            'linhas' => $resultado,
-        ], now()->addHours(2));
 
         return redirect()->route('verificar.resultado', $token);
     }
@@ -62,7 +63,7 @@ class VerificarExcelController extends Controller
      */
     public function resultado(string $token)
     {
-        $dados = Cache::get("verificacao:{$token}");
+        $dados = $this->obter($token);
 
         if (!$dados) {
             return redirect()->route('verificar.index')
@@ -88,7 +89,7 @@ class VerificarExcelController extends Controller
      */
     public function exportar(string $token)
     {
-        $dados = Cache::get("verificacao:{$token}");
+        $dados = $this->obter($token);
 
         if (!$dados) {
             return redirect()->route('verificar.index')
@@ -105,7 +106,7 @@ class VerificarExcelController extends Controller
      */
     public function importar(string $token)
     {
-        $dados = Cache::get("verificacao:{$token}");
+        $dados = $this->obter($token);
 
         if (!$dados) {
             return redirect()->route('verificar.index')
@@ -143,7 +144,7 @@ class VerificarExcelController extends Controller
             DB::commit();
 
             // Evita importar duas vezes o mesmo resultado
-            Cache::forget("verificacao:{$token}");
+            $this->apagar($token);
 
             return redirect()->route('verificar.index')->with('success',
                 "✅ {$importados} novos beneficiários importados para o Urbano."
@@ -151,6 +152,58 @@ class VerificarExcelController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
             return back()->with('error', '❌ Erro ao importar: ' . $e->getMessage());
+        }
+    }
+
+    // ───────────────────────────────────────────────
+    // Armazenamento temporário em ficheiro (não depende da cache)
+    // ───────────────────────────────────────────────
+
+    private function caminho(string $token): ?string
+    {
+        return Str::isUuid($token) ? "verificacoes/{$token}.json" : null;
+    }
+
+    private function guardar(string $token, array $dados): void
+    {
+        Storage::disk('local')->put(
+            $this->caminho($token),
+            json_encode($dados, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE)
+        );
+    }
+
+    private function obter(string $token): ?array
+    {
+        $caminho = $this->caminho($token);
+
+        if (!$caminho || !Storage::disk('local')->exists($caminho)) {
+            return null;
+        }
+
+        // Expira ao fim de 2 horas
+        if (Storage::disk('local')->lastModified($caminho) < now()->subHours(2)->getTimestamp()) {
+            Storage::disk('local')->delete($caminho);
+            return null;
+        }
+
+        return json_decode(Storage::disk('local')->get($caminho), true);
+    }
+
+    private function apagar(string $token): void
+    {
+        if ($caminho = $this->caminho($token)) {
+            Storage::disk('local')->delete($caminho);
+        }
+    }
+
+    private function limparAntigos(): void
+    {
+        $limite = now()->subHours(2)->getTimestamp();
+
+        foreach (Storage::disk('local')->files('verificacoes') as $f) {
+            if (Storage::disk('local')->lastModified($f) < $limite) {
+                Storage::disk('local')->delete($f);
+            }
         }
     }
 }
