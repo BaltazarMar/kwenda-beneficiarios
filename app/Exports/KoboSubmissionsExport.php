@@ -27,7 +27,7 @@ class KoboSubmissionsExport
     public function download(string $filename): \Symfony\Component\HttpFoundation\BinaryFileResponse
     {
         // Caminho do modelo — coloca o ficheiro Modelo_kwenda.xlsx em storage/app/
-        $modeloPath = storage_path('app/modelo_kwenda.xlsx');
+        $modeloPath = resource_path('modelos/modelo_kwenda.xlsx');
 
         $spreadsheet = IOFactory::load($modeloPath);
         $ws          = $spreadsheet->getSheetByName('Beneficiários');
