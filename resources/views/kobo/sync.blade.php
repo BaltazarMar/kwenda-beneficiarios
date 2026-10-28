@@ -67,6 +67,8 @@
     .kobo-btn-green:hover  { background: #15803d; color: white; }
     .kobo-btn-cyan   { background: #0ea5e9; color: white; }
     .kobo-btn-cyan:hover   { background: #0284c7; color: white; }
+    .kobo-btn-violet { background: #7c3aed; color: white; }
+    .kobo-btn-violet:hover { background: #6d28d9; color: white; }
 
     /* ── Cards de estatísticas ── */
     .kobo-stats {
@@ -299,6 +301,18 @@
                     <i class="bi bi-check-circle-fill"></i> Importar Novos ({{ $novos }})
                 </button>
             </form>
+            {{-- Importar Excel: compara com o Urbano e o Rural --}}
+            @hasanyrole('director|assistente_dados')
+            <form action="{{ route('verificar.processar') }}" method="POST" enctype="multipart/form-data" style="margin:0;">
+                @csrf
+                <input type="file" name="ficheiro" id="ficheiro-excel" accept=".xlsx,.xls,.csv" style="display:none;"
+                    onchange="if (this.files.length) { this.form.submit(); }">
+                <button type="button" class="kobo-btn kobo-btn-violet"
+                    onclick="document.getElementById('ficheiro-excel').click()">
+                    <i class="bi bi-file-earmark-arrow-up-fill"></i> Importar Excel
+                </button>
+            </form>
+            @endhasanyrole
             <a href="{{ route('kobo.exportar') }}" class="kobo-btn kobo-btn-cyan">
                 <i class="bi bi-file-earmark-excel-fill"></i> Exportar Excel
             </a>
