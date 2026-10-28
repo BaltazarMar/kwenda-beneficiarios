@@ -9,6 +9,7 @@ use App\Http\Controllers\EfetividadeController;
 use App\Http\Controllers\BeneficiarioController;
 use App\Http\Controllers\KoboSyncController;
 use App\Http\Controllers\UrbanoController;
+use App\Http\Controllers\VerificarExcelController;
 
 // ================= PÁGINA INICIAL =================
 Route::get('/', function () {
@@ -66,6 +67,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/importar', function () {
             return view('importar');
         });
+
+        // Verificar Excel (detectar duplicados no Urbano e no Rural)
+        Route::get('/verificar-excel', [VerificarExcelController::class, 'index'])->name('verificar.index');
+        Route::post('/verificar-excel', [VerificarExcelController::class, 'processar'])->name('verificar.processar');
+        Route::get('/verificar-excel/{token}', [VerificarExcelController::class, 'resultado'])->name('verificar.resultado');
+        Route::get('/verificar-excel/{token}/exportar', [VerificarExcelController::class, 'exportar'])->name('verificar.exportar');
+        Route::post('/verificar-excel/{token}/importar', [VerificarExcelController::class, 'importar'])->name('verificar.importar');
     });
 
     // Funcionários — director, recepcionista
